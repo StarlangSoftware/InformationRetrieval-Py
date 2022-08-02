@@ -15,7 +15,7 @@ class VectorSpaceModel:
                  documentSize: int,
                  termWeighting: TermWeighting,
                  documentWeighting: DocumentWeighting):
-        sum = 0
+        _sum = 0
         self._model = []
         for i in range(len(termFrequencies)):
             self._model.append(self.weighting(termFrequencies[i],
@@ -23,18 +23,18 @@ class VectorSpaceModel:
                                               documentSize,
                                               termWeighting,
                                               documentWeighting))
-            sum = sum + self._model[i] * self._model[i]
+            _sum = _sum + self._model[i] * self._model[i]
         for i in range(len(termFrequencies)):
-            self._model[i] = self._model[i] / sqrt(sum)
+            self._model[i] = self._model[i] / sqrt(_sum)
 
     def get(self, index: int) -> float:
         return self._model[index]
 
     def cosineSimilarity(self, secondModel: VectorSpaceModel):
-        sum = 0.0
+        _sum = 0.0
         for i in range(len(self._model)):
-            sum = sum + self._model[i] * secondModel._model[i]
-        return sum
+            _sum = _sum + self._model[i] * secondModel._model[i]
+        return _sum
 
     @staticmethod
     def weighting(termFrequency: float,

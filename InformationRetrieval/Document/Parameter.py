@@ -15,7 +15,7 @@ class Parameter:
     _phraseIndex: bool = True
     _positionalIndex: bool = True
     _constructNGramIndex: bool = True
-    _constructIndexInDisk : bool = False
+    _constructIndexInDisk: bool = False
     _constructDictionaryInDisk: bool = False
     _limitNumberOfDocumentsLoaded: bool = False
     _documentLimit: int = 1000

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from io import TextIOWrapper
+from typing import TextIO
 
 from InformationRetrieval.Index.PositionalPosting import PositionalPosting
 from InformationRetrieval.Query.QueryResult import QueryResult
@@ -9,7 +10,7 @@ class PositionalPostingList:
 
     _postings: [PositionalPosting] = []
 
-    def __init__(self, infile: TextIOWrapper = None, count: int = None):
+    def __init__(self, infile: TextIO = None, count: int = None):
         if infile is not None:
             for i in range(count):
                 line = infile.readline().strip()
@@ -66,8 +67,8 @@ class PositionalPostingList:
         j = 0
         result = PositionalPostingList()
         while i < len(self._postings) and j < len(secondList._postings):
-            p1 : PositionalPosting = self._postings[i]
-            p2 : PositionalPosting = secondList._postings[j]
+            p1: PositionalPosting = self._postings[i]
+            p2: PositionalPosting = secondList._postings[j]
             if p1.getDocId() == p2.getDocId():
                 position1 = 0
                 position2 = 0

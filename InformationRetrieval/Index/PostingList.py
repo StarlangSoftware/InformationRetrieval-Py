@@ -13,8 +13,8 @@ class PostingList:
     def __init__(self, line: str = None):
         if line is not None:
             ids = line.split(" ")
-            for id in ids:
-                self.add(int(id))
+            for _id in ids:
+                self.add(int(_id))
 
     def add(self, docId: int):
         self.postings.append(Posting(docId))
@@ -27,8 +27,8 @@ class PostingList:
         j = 0
         result = PostingList()
         while i < self.size() and j < secondList.size():
-            p1 : Posting = self.postings[i]
-            p2 : Posting = secondList.postings[j]
+            p1: Posting = self.postings[i]
+            p2: Posting = secondList.postings[j]
             if p1.getId() == p2.getId():
                 result.add(p1.getId())
                 i = i + 1

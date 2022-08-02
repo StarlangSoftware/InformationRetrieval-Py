@@ -12,7 +12,7 @@ class TermDictionary(Dictionary):
     def __init__(self, comparator: object, fileNameOrTerms):
         super().__init__(comparator)
         if isinstance(fileNameOrTerms, str):
-            fileName : str = fileNameOrTerms
+            fileName: str = fileNameOrTerms
             infile = open(fileName + "-dictionary.txt", mode='r', encoding='utf-8')
             line = infile.readline()
             while not line:
@@ -23,7 +23,7 @@ class TermDictionary(Dictionary):
         else:
             if isinstance(fileNameOrTerms, list):
                 termId = 0
-                terms : [TermOccurrence] = fileNameOrTerms
+                terms: [TermOccurrence] = fileNameOrTerms
                 if len(terms) > 0:
                     term = terms[0]
                     self.addTerm(term.getTerm().getName(), termId)
@@ -31,7 +31,7 @@ class TermDictionary(Dictionary):
                     previousTerm = term
                     i = 1
                     while i < len(terms):
-                        term : TermOccurrence = terms[i]
+                        term: TermOccurrence = terms[i]
                         if term.isDifferent(previousTerm):
                             self.addTerm(term.getTerm().getName(), termId)
                             termId = termId + 1
@@ -68,6 +68,6 @@ class TermDictionary(Dictionary):
     def save(self, fileName: str):
         outfile = open(fileName, mode='w', encoding='utf-8')
         for word in self.words:
-            term : Term = word
+            term: Term = word
             outfile.write(term.getTermId().__str__() + " " + term.getName() + "\n")
         outfile.close()

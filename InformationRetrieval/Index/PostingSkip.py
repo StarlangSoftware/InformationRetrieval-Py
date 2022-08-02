@@ -19,8 +19,8 @@ class PostingSkip(Posting):
         self._skipAvailable = True
         self._skip = skip
 
-    def setNext(self, next: PostingSkip):
-        self._next = next
+    def setNext(self, _next: PostingSkip):
+        self._next = _next
 
     def next(self) -> PostingSkip:
         return self._next
