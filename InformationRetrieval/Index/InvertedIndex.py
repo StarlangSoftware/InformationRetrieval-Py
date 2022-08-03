@@ -12,43 +12,34 @@ class InvertedIndex:
 
     _index: OrderedDict = OrderedDict()
 
-    @staticmethod
-    def postingListComparator(listA: PostingList, listB: PostingList):
-        if listA.size() < listB.size():
-            return -1
-        else:
-            if listA.size() < listB.size():
-                return 1
-            else:
-                return 0
-
     def __init__(self,
-                 dictionaryOrfileName: object,
+                 dictionaryOrfileName: object = None,
                  terms: [TermOccurrence] = None):
-        if isinstance(dictionaryOrfileName, TermDictionary):
-            dictionary: TermDictionary = dictionaryOrfileName
-            if len(terms) > 0:
-                term: TermOccurrence = terms[0]
-                i = 1
-                previousTerm = term
-                termId = dictionary.getWordIndex(term.getTerm().getName())
-                self.add(termId, term.getDocID())
-                prevDocId = term.getDocID()
-                while i < len(terms):
-                    term = terms[i]
+        if dictionaryOrfileName is not None:
+            if isinstance(dictionaryOrfileName, TermDictionary):
+                dictionary: TermDictionary = dictionaryOrfileName
+                if len(terms) > 0:
+                    term: TermOccurrence = terms[0]
+                    i = 1
+                    previousTerm = term
                     termId = dictionary.getWordIndex(term.getTerm().getName())
-                    if termId != -1:
-                        if term.isDifferent(previousTerm):
-                            self.add(termId, term.getDocID())
-                            prevDocId = term.getDocID()
-                        else:
-                            if prevDocId != term.getDocID():
+                    self.add(termId, term.getDocID())
+                    prevDocId = term.getDocID()
+                    while i < len(terms):
+                        term = terms[i]
+                        termId = dictionary.getWordIndex(term.getTerm().getName())
+                        if termId != -1:
+                            if term.isDifferent(previousTerm):
                                 self.add(termId, term.getDocID())
                                 prevDocId = term.getDocID()
-                    i = i + 1
-                    previousTerm = term
-        elif isinstance(dictionaryOrfileName, str):
-            self.readPostingList(dictionaryOrfileName)
+                            else:
+                                if prevDocId != term.getDocID():
+                                    self.add(termId, term.getDocID())
+                                    prevDocId = term.getDocID()
+                        i = i + 1
+                        previousTerm = term
+            elif isinstance(dictionaryOrfileName, str):
+                self.readPostingList(dictionaryOrfileName)
 
     def readPostingList(self, fileName: str):
         infile = open(fileName + "-postings.txt", mode="r", encoding="utf-8")
@@ -81,7 +72,7 @@ class InvertedIndex:
             termIndex = dictionary.getWordIndex(query.getTerm(i).getName())
             if termIndex != -1:
                 queryTerms.append(self._index[termIndex])
-        queryTerms.sort(key=cmp_to_key(self.postingListComparator))
+        queryTerms.sort(key=cmp_to_key(PostingList.postingListComparator))
         result: PostingList = queryTerms[0]
         for i in range(1, len(queryTerms)):
             result = result.intersection(queryTerms[i])

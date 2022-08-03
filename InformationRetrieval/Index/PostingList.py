@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from io import TextIOWrapper
+from typing import TextIO
 
 from InformationRetrieval.Index.Posting import Posting
 from InformationRetrieval.Query.QueryResult import QueryResult
@@ -9,6 +10,16 @@ from InformationRetrieval.Query.QueryResult import QueryResult
 class PostingList:
 
     postings: [Posting] = []
+
+    @staticmethod
+    def postingListComparator(listA: PostingList, listB: PostingList):
+        if listA.size() < listB.size():
+            return -1
+        else:
+            if listA.size() < listB.size():
+                return 1
+            else:
+                return 0
 
     def __init__(self, line: str = None):
         if line is not None:
@@ -52,7 +63,7 @@ class PostingList:
             result.add(posting.getId())
         return result
 
-    def writeToFile(self, outfile: TextIOWrapper, index: int):
+    def writeToFile(self, outfile: TextIO, index: int):
         if self.size() > 0:
             outfile.write(index.__str__() + " " + self.size().__str__() + "\n")
             outfile.write(self.__str__())

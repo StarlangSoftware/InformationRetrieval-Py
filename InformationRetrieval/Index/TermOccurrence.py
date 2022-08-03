@@ -13,6 +13,24 @@ class TermOccurrence:
         self._docID = docID
         self._position = position
 
+    @staticmethod
+    def makeComparator(comparator: object):
+        def compare(termA: TermOccurrence, termB: TermOccurrence):
+            if termA.getTerm().getName() != termB.getTerm().getName():
+                return comparator.compare(termA.getTerm(), termB.getTerm())
+            elif termA.getDocID() == termB.getDocID():
+                if termA.getPosition() == termB.getPosition():
+                    return 0
+                elif termA.getPosition() < termB.getPosition():
+                    return -1
+                else:
+                    return 1
+            elif termA.getDocID() < termB.getDocID():
+                return -1
+            else:
+                return 1
+        return compare
+
     def getTerm(self) -> Word:
         return self._term
 
