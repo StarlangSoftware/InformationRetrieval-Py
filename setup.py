@@ -8,7 +8,10 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 setup(
     name='NlpToolkit-InformationRetrieval',
     version='1.0.0',
-    packages=['InformationRetrieval'],
+    packages=['InformationRetrieval',
+              'InformationRetrieval.Document',
+              'InformationRetrieval.Index',
+              'InformationRetrieval.Query'],
     url='https://github.com/StarlangSoftware/InformationRetrieval-Py',
     license='',
     author='olcaytaner',

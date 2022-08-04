@@ -3,9 +3,10 @@ from Dictionary.Word import Word
 
 class Query:
 
-    _terms: [Word] = []
+    _terms: [Word]
 
     def __init__(self, query: str):
+        self._terms = []
         terms = query.split(" ")
         for term in terms:
             self._terms.append(Word(term))

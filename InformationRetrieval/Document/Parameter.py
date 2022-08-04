@@ -1,7 +1,9 @@
+from Dictionary.Word import Word
 from MorphologicalAnalysis.FsmMorphologicalAnalyzer import FsmMorphologicalAnalyzer
 from MorphologicalDisambiguation.MorphologicalDisambiguator import MorphologicalDisambiguator
 
 from InformationRetrieval.Document.IndexType import IndexType
+from InformationRetrieval.Index.TermOccurrence import TermOccurrence
 
 
 class Parameter:
@@ -22,6 +24,7 @@ class Parameter:
     _wordLimit: int = 10000
 
     def __init__(self):
+        self._wordComparator = TermOccurrence.ignoreCaseComparator
         pass
 
     def getIndexType(self) -> IndexType:

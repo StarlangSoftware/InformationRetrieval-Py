@@ -1,18 +1,25 @@
+from __future__ import annotations
 import os
+from functools import cmp_to_key
 
 from Dictionary.Word import Word
 
 from InformationRetrieval.Document.Document import Document
+from InformationRetrieval.Document.DocumentWeighting import DocumentWeighting
 from InformationRetrieval.Document.IndexType import IndexType
 from InformationRetrieval.Document.Parameter import Parameter
 from InformationRetrieval.Index.IncidenceMatrix import IncidenceMatrix
 from InformationRetrieval.Index.InvertedIndex import InvertedIndex
 from InformationRetrieval.Index.NGramIndex import NGramIndex
 from InformationRetrieval.Index.PositionalIndex import PositionalIndex
+from InformationRetrieval.Index.PositionalPostingList import PositionalPostingList
 from InformationRetrieval.Index.PostingList import PostingList
 from InformationRetrieval.Index.TermDictionary import TermDictionary
 from InformationRetrieval.Index.TermOccurrence import TermOccurrence
 from InformationRetrieval.Index.TermType import TermType
+from InformationRetrieval.Index.TermWeighting import TermWeighting
+from InformationRetrieval.Query.Query import Query
+from InformationRetrieval.Query.RetrievalType import RetrievalType
 
 
 class Collection:
@@ -43,6 +50,7 @@ class Collection:
             if parameter.limitNumberOfDocumentsLoaded():
                 fileLimit = parameter.getDocumentLimit()
             j = 0
+            files.sort()
             for file in files:
                 if j >= fileLimit:
                     break
@@ -146,7 +154,7 @@ class Collection:
             documentText = doc.loadDocument()
             docTerms = documentText.constructTermList(doc.getDocId(), termType)
             terms.extend(docTerms)
-        terms.sort(key=TermOccurrence.makeComparator(self._comparator))
+        terms.sort(key=cmp_to_key(TermOccurrence.termOccurrenceComparator))
         return terms
 
     def constructDistinctWordList(self, termType: TermType) -> set:
@@ -154,7 +162,7 @@ class Collection:
         for doc in self._documents:
             documentText = doc.loadDocument()
             docWords = documentText.constructDistinctWordList(termType)
-            words.union(docWords)
+            words = words.union(docWords)
         return words
 
     def notCombinedAllIndexes(self, currentIdList: [int]) -> bool:
@@ -184,7 +192,7 @@ class Collection:
         result = []
         _min = None
         for word in currentWords:
-            if word is not None and (_min is None or self._comparator.compare(Word(word), Word(_min)) < 0):
+            if word is not None and (_min is None or self._comparator(Word(word), Word(_min)) < 0):
                 _min = word
         for i in range(len(currentWords)):
             if currentWords[i] is not None and currentWords[i] == _min:
@@ -201,14 +209,14 @@ class Collection:
         outFile = open(name + "-dictionary.txt", mode="w", encoding="utf-8")
         for i in range(blockCount):
             files.append(open("tmp-" + tmpName + i.__str__() + "-dictionary.txt", mode="r", encoding="utf-8"))
-            line = files[i].readline()
+            line = files[i].readline().strip()
             currentIdList.append(int(line[0:line.index(" ")]))
             currentWords.append(line[line.index(" ") + 1:])
         while self.notCombinedAllDictionaries(currentWords):
             indexesToCombine = self.selectDictionariesWithMinimumWords(currentWords)
             outFile.write(currentIdList[indexesToCombine[0]].__str__() + " " + currentWords[indexesToCombine[0]] + "\n")
             for i in indexesToCombine:
-                line = files[i].readline()
+                line = files[i].readline().strip()
                 if line != "":
                     currentIdList[i] = int(line[0:line.index(" ")])
                     currentWords[i] = line[line.index(" ") + 1:]
@@ -225,13 +233,13 @@ class Collection:
                                       nGramIndex: NGramIndex):
         wordId = int(line[0:line.index(" ")])
         word = line[line.index(" ") + 1:]
-        biGrams = NGramIndex.constructNGrams(word, wordId, k)
+        biGrams = TermDictionary.constructNGrams(word, wordId, k)
         for term in biGrams:
             wordIndex = nGramDictionary.getWordIndex(term.getTerm().getName())
             if wordIndex != -1:
                 termId = nGramDictionary.getWordWithIndex(wordIndex).getTermId()
             else:
-                termId = term.getTerm().getName().__hash__()
+                termId = abs(term.getTerm().getName().__hash__())
                 nGramDictionary.addTerm(term.getTerm().getName(), termId)
             nGramIndex.add(termId, wordId)
 
@@ -243,7 +251,7 @@ class Collection:
         biGramIndex = NGramIndex()
         triGramIndex = NGramIndex()
         infile = open(self._name + "-dictionary.txt")
-        line = infile.readline()
+        line = infile.readline().strip()
         while line:
             if i < self._parameter.getWordLimit():
                 i = i + 1
@@ -260,7 +268,7 @@ class Collection:
                 i = 0
             self.addNGramsToDictionaryAndIndex(line, 2, biGramDictionary, biGramIndex)
             self.addNGramsToDictionaryAndIndex(line, 3, triGramDictionary, triGramIndex)
-            line = infile.readline()
+            line = infile.readline().strip()
         infile.close()
         if len(self._documents) != 0:
             biGramDictionary.save("tmp-biGram-" + blockCount.__str__())
@@ -283,10 +291,10 @@ class Collection:
         outFile = open(name + "-postings.txt", mode="w", encoding="utf-8")
         for i in range(blockCount):
             files.append(open("tmp-" + tmpName + i.__str__() + "-postings.txt", mode="r", encoding="utf-8"))
-            line = files[i].readline()
+            line = files[i].readline().strip()
             items = line.split(" ")
             currentIdList.append(int(items[0]))
-            line = files[i].readline()
+            line = files[i].readline().strip()
             currentPostingLists.append(PostingList(line))
         while self.notCombinedAllIndexes(currentIdList):
             indexesToCombine = self.selectIndexesWithMinimumTermIds(currentIdList)
@@ -295,11 +303,11 @@ class Collection:
                 mergedPostingList = mergedPostingList.union(currentPostingLists[indexesToCombine[i]])
             mergedPostingList.writeToFile(outFile, currentIdList[indexesToCombine[0]])
             for i in indexesToCombine:
-                line = files[i].readline()
+                line = files[i].readline().strip()
                 if line != "":
                     items = line.split(" ")
                     currentIdList[i] = int(items[0])
-                    line = files[i].readline()
+                    line = files[i].readline().strip()
                     currentPostingLists[i] = PostingList(line)
                 else:
                     currentIdList[i] = -1
@@ -356,7 +364,7 @@ class Collection:
                 if wordIndex != -1:
                     termId = dictionary.getWordWithIndex(wordIndex).getTermId()
                 else:
-                    termId = word.__hash__()
+                    termId = abs(word.__hash__())
                     dictionary.addTerm(word, termId)
                 invertedIndex.add(termId, doc.getDocId())
         if len(self._documents) != 0:
@@ -369,3 +377,120 @@ class Collection:
         else:
             self.combineMultipleDictionariesInDisk(self._name + "-phrase", "", blockCount)
             self.combineMultipleInvertedIndexesInDisk(self._name + "-phrase", "", blockCount)
+
+    def combineMultiplePositionalIndexesInDisk(self, name: str, blockCount: int):
+        currentIdList = []
+        currentPostingLists = []
+        files = []
+        outFile = open(name + "-positionalPostings.txt", mode="w", encoding="utf-8")
+        for i in range(blockCount):
+            files.append(open("tmp-" + i.__str__() + "-positionalPostings.txt", mode="r", encoding="utf-8"))
+            line = files[i].readline().strip()
+            items = line.split(" ")
+            currentIdList.append(int(items[0]))
+            currentPostingLists.append(PositionalPostingList(files[i], int(items[1])))
+        while self.notCombinedAllIndexes(currentIdList):
+            indexesToCombine = self.selectIndexesWithMinimumTermIds(currentIdList)
+            mergedPostingList = currentPostingLists[indexesToCombine[0]]
+            for i in range(1, len(indexesToCombine)):
+                mergedPostingList = mergedPostingList.union(currentPostingLists[indexesToCombine[i]])
+            mergedPostingList.writeToFile(outFile, currentIdList[indexesToCombine[0]])
+            for i in indexesToCombine:
+                line = files[i].readline().strip()
+                if line != "":
+                    items = line.split(" ")
+                    currentIdList[i] = int(items[0])
+                    currentPostingLists[i] = PositionalPostingList(files[i], int(items[1]))
+                else:
+                    currentIdList[i] = -1
+        for i in range(blockCount):
+            files[i].close()
+        outFile.close()
+
+    def constructDictionaryAndPositionalIndexInDisk(self, termType: TermType):
+        i = 0
+        blockCount = 0
+        positionalIndex = PositionalIndex()
+        dictionary = TermDictionary(self._comparator)
+        for doc in self._documents:
+            if i < self._parameter.getDocumentLimit():
+                i = i + 1
+            else:
+                dictionary.save("tmp-" + blockCount.__str__())
+                dictionary = TermDictionary(self._comparator)
+                positionalIndex.save("tmp-" + blockCount.__str__())
+                positionalIndex = PositionalIndex()
+                blockCount = blockCount + 1
+                i = 0
+            documentText = doc.loadDocument()
+            terms = documentText.constructTermList(doc.getDocId(), termType)
+            for termOccurrence in terms:
+                wordIndex = dictionary.getWordIndex(termOccurrence.getTerm().getName())
+                if wordIndex != -1:
+                    termId = dictionary.getWordWithIndex(wordIndex).getTermId()
+                else:
+                    termId = abs(termOccurrence.getTerm().getName().__hash__())
+                    dictionary.addTerm(termOccurrence.getTerm().getName(), termId)
+                positionalIndex.addPosition(termId, termOccurrence.getDocID(), termOccurrence.getPosition())
+        if len(self._documents) != 0:
+            dictionary.save("tmp-" + blockCount.__str__())
+            positionalIndex.save("tmp-" + blockCount.__str__())
+            blockCount = blockCount + 1
+        if termType == TermType.TOKEN:
+            self.combineMultipleDictionariesInDisk(self._name, "", blockCount)
+            self.combineMultiplePositionalIndexesInDisk(self._name, blockCount)
+        else:
+            self.combineMultipleDictionariesInDisk(self._name + "-phrase", "", blockCount)
+            self.combineMultiplePositionalIndexesInDisk(self._name + "-phrase", blockCount)
+
+    def constructPositionalIndexInDisk(self, dictionary: TermDictionary, termType: TermType):
+        i = 0
+        blockCount = 0
+        positionalIndex = PositionalIndex()
+        for doc in self._documents:
+            if i < self._parameter.getDocumentLimit():
+                i = i + 1
+            else:
+                positionalIndex.save("tmp-" + blockCount.__str__())
+                positionalIndex = PositionalIndex()
+                blockCount = blockCount + 1
+                i = 0
+            documentText = doc.loadDocument()
+            terms = documentText.constructTermList(doc.getDocId(), termType)
+            for termOccurrence in terms:
+                termId = dictionary.getWordIndex(termOccurrence.getTerm().getName())
+                positionalIndex.addPosition(termId, termOccurrence.getDocId(), termOccurrence.getPosition())
+        if len(self._documents) != 0:
+            positionalIndex.save("tmp-" + blockCount.__str__())
+            blockCount = blockCount + 1
+        if termType == TermType.TOKEN:
+            self.combineMultiplePositionalIndexesInDisk(self._name, blockCount)
+        else:
+            self.combineMultiplePositionalIndexesInDisk(self._name + "-phrase", blockCount)
+
+    def constructNGramIndex(self):
+        terms = self._dictionary.constructTermsFromDictionary(2)
+        self._biGramDictionary = TermDictionary(self._comparator, terms)
+        self._biGramIndex = NGramIndex(self._biGramDictionary, terms)
+        terms = self._dictionary.constructTermsFromDictionary(3)
+        self._triGramDictionary = TermDictionary(self._comparator, terms)
+        self._triGramIndex = NGramIndex(self._triGramDictionary, terms)
+
+    def searchCollection(self,
+                         query: Query,
+                         retrievalType: RetrievalType,
+                         termWeighting: TermWeighting,
+                         documentWeighting: DocumentWeighting):
+        if self._indexType == IndexType.INCIDENCE_MATRIX:
+            return self._incidenceMatrix.search(query, self._dictionary)
+        else:
+            if retrievalType == RetrievalType.BOOLEAN:
+                return self._invertedIndex.search(query, self._dictionary)
+            elif retrievalType == RetrievalType.POSITIONAL:
+                return self._positionalIndex.positionalSearch(query, self._dictionary)
+            else:
+                return self._positionalIndex.rankedSearch(query,
+                                                          self._dictionary,
+                                                          self._documents,
+                                                          termWeighting,
+                                                          documentWeighting)

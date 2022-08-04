@@ -14,45 +14,47 @@ from InformationRetrieval.Query.VectorSpaceModel import VectorSpaceModel
 
 class PositionalIndex:
 
-    _positionalIndex: OrderedDict = OrderedDict()
+    _positionalIndex: OrderedDict
 
     def __init__(self,
-                 dictionaryOrfileName: object,
+                 dictionaryOrfileName: object = None,
                  terms: [TermOccurrence] = None):
-        if isinstance(dictionaryOrfileName, TermDictionary):
-            dictionary: TermDictionary = dictionaryOrfileName
-            if len(terms) > 0:
-                term: TermOccurrence = terms[0]
-                i = 1
-                previousTerm = term
-                termId = dictionary.getWordIndex(term.getTerm().getName())
-                self.addPosition(termId, term.getDocID(), term.getPosition())
-                prevDocId = term.getDocID()
-                while i < len(terms):
-                    term = terms[i]
-                    termId = dictionary.getWordIndex(term.getTerm().getName())
-                    if termId != -1:
-                        if term.isDifferent(previousTerm):
-                            self.addPosition(termId, term.getDocID(), term.getPosition())
-                            prevDocId = term.getDocID()
-                        elif prevDocId != term.getDocID():
-                            self.addPosition(termId, term.getDocID(), term.getPosition())
-                            prevDocId = term.getDocID()
-                        else:
-                            self.addPosition(termId, term.getDocID(), term.getPosition())
-                    i = i + 1
+        self._positionalIndex = OrderedDict()
+        if dictionaryOrfileName is not None:
+            if isinstance(dictionaryOrfileName, TermDictionary):
+                dictionary: TermDictionary = dictionaryOrfileName
+                if len(terms) > 0:
+                    term: TermOccurrence = terms[0]
+                    i = 1
                     previousTerm = term
-        elif isinstance(dictionaryOrfileName, str):
-            self.readPositionalPostingList(dictionaryOrfileName)
+                    termId = dictionary.getWordIndex(term.getTerm().getName())
+                    self.addPosition(termId, term.getDocID(), term.getPosition())
+                    prevDocId = term.getDocID()
+                    while i < len(terms):
+                        term = terms[i]
+                        termId = dictionary.getWordIndex(term.getTerm().getName())
+                        if termId != -1:
+                            if term.isDifferent(previousTerm):
+                                self.addPosition(termId, term.getDocID(), term.getPosition())
+                                prevDocId = term.getDocID()
+                            elif prevDocId != term.getDocID():
+                                self.addPosition(termId, term.getDocID(), term.getPosition())
+                                prevDocId = term.getDocID()
+                            else:
+                                self.addPosition(termId, term.getDocID(), term.getPosition())
+                        i = i + 1
+                        previousTerm = term
+            elif isinstance(dictionaryOrfileName, str):
+                self.readPositionalPostingList(dictionaryOrfileName)
 
     def readPositionalPostingList(self, fileName: str):
         infile = open(fileName + "-positionalPostings.txt", mode="r", encoding="utf-8")
-        line = infile.readline()
+        line = infile.readline().strip()
         while line != "":
             items = line.split(" ")
             wordId = int(items[0])
             self._positionalIndex[wordId] = PositionalPostingList(infile, int(items[1]))
-            line = infile.readline()
+            line = infile.readline().strip()
         infile.close()
 
     def save(self, fileName: str):
@@ -62,7 +64,7 @@ class PositionalIndex:
         outfile.close()
 
     def addPosition(self, termId: int, docId: int, position: int):
-        if termId in self._positionalIndex[termId]:
+        if termId in self._positionalIndex:
             positionalPostingList = self._positionalIndex[termId]
         else:
             positionalPostingList = PositionalPostingList()

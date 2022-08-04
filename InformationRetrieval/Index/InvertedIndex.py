@@ -10,11 +10,12 @@ from InformationRetrieval.Query.QueryResult import QueryResult
 
 class InvertedIndex:
 
-    _index: OrderedDict = OrderedDict()
+    _index: OrderedDict
 
     def __init__(self,
                  dictionaryOrfileName: object = None,
                  terms: [TermOccurrence] = None):
+        self._index = OrderedDict()
         if dictionaryOrfileName is not None:
             if isinstance(dictionaryOrfileName, TermDictionary):
                 dictionary: TermDictionary = dictionaryOrfileName
@@ -43,11 +44,11 @@ class InvertedIndex:
 
     def readPostingList(self, fileName: str):
         infile = open(fileName + "-postings.txt", mode="r", encoding="utf-8")
-        line = infile.readline()
+        line = infile.readline().strip()
         while line != "":
             items = line.split(" ")
             wordId = int(items[0])
-            line = infile.readline()
+            line = infile.readline().strip()
             self._index[wordId] = PostingList(line)
             line = infile.readline()
         infile.close()
@@ -59,7 +60,7 @@ class InvertedIndex:
         outfile.close()
 
     def add(self, termId: int, docId: int):
-        if termId in self._index[termId]:
+        if termId in self._index:
             postingList = self._index[termId]
         else:
             postingList = PostingList()

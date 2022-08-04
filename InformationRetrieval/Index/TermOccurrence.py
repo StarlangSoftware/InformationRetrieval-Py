@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from Dictionary.Word import Word
 
 
@@ -14,22 +15,50 @@ class TermOccurrence:
         self._position = position
 
     @staticmethod
-    def makeComparator(comparator: object):
-        def compare(termA: TermOccurrence, termB: TermOccurrence):
-            if termA.getTerm().getName() != termB.getTerm().getName():
-                return comparator.compare(termA.getTerm(), termB.getTerm())
-            elif termA.getDocID() == termB.getDocID():
-                if termA.getPosition() == termB.getPosition():
-                    return 0
-                elif termA.getPosition() < termB.getPosition():
+    def ignoreCaseComparator(wordA: Word, wordB: Word):
+        IGNORE_CASE_LETTERS = "aAbBcCçÇdDeEfFgGğĞhHıIiİjJkKlLmMnNoOöÖpPqQrRsSşŞtTuUüÜvVwWxXyYzZ"
+        for i in range(min(len(wordA.getName()), len(wordB.getName()))):
+            firstChar = wordA.getName()[i:i + 1]
+            secondChar = wordB.getName()[i:i + 1]
+            if firstChar != secondChar:
+                if firstChar in IGNORE_CASE_LETTERS and secondChar not in IGNORE_CASE_LETTERS:
                     return -1
-                else:
+                elif firstChar not in IGNORE_CASE_LETTERS and secondChar in IGNORE_CASE_LETTERS:
                     return 1
-            elif termA.getDocID() < termB.getDocID():
+                elif firstChar in IGNORE_CASE_LETTERS and secondChar in IGNORE_CASE_LETTERS:
+                    first = IGNORE_CASE_LETTERS.index(firstChar)
+                    second = IGNORE_CASE_LETTERS.index(secondChar)
+                    if first < second:
+                        return -1
+                    elif first > second:
+                        return 1
+                else:
+                    if firstChar < secondChar:
+                        return -1
+                    else:
+                        return 1
+        if len(wordA.getName()) < len(wordB.getName()):
+            return -1
+        elif len(wordA.getName()) > len(wordB.getName()):
+            return 1
+        else:
+            return 0
+
+    @staticmethod
+    def termOccurrenceComparator(termA: TermOccurrence, termB: TermOccurrence):
+        if termA.getTerm().getName() != termB.getTerm().getName():
+            return TermOccurrence.ignoreCaseComparator(termA.getTerm(), termB.getTerm())
+        elif termA.getDocID() == termB.getDocID():
+            if termA.getPosition() == termB.getPosition():
+                return 0
+            elif termA.getPosition() < termB.getPosition():
                 return -1
             else:
                 return 1
-        return compare
+        elif termA.getDocID() < termB.getDocID():
+            return -1
+        else:
+            return 1
 
     def getTerm(self) -> Word:
         return self._term

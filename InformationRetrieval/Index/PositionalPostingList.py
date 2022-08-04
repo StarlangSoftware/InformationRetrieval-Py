@@ -8,9 +8,10 @@ from InformationRetrieval.Query.QueryResult import QueryResult
 
 class PositionalPostingList:
 
-    _postings: [PositionalPosting] = []
+    _postings: [PositionalPosting]
 
     def __init__(self, infile: TextIO = None, count: int = None):
+        self._postings = []
         if infile is not None:
             for i in range(count):
                 line = infile.readline().strip()
@@ -96,10 +97,10 @@ class PositionalPostingList:
     def __str__(self) -> str:
         result = ""
         for positionalPosting in self._postings:
-            result = result + positionalPosting.__str__() + "\n"
+            result = result + "\t" + positionalPosting.__str__() + "\n"
         return result
 
-    def writeToFile(self, outfile: TextIOWrapper, index: int):
+    def writeToFile(self, outfile: TextIO, index: int):
         if self.size() > 0:
             outfile.write(index.__str__() + " " + self.size().__str__() + "\n")
             outfile.write(self.__str__())

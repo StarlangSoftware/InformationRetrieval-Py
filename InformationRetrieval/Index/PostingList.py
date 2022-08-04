@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from io import TextIOWrapper
 from typing import TextIO
 
 from InformationRetrieval.Index.Posting import Posting
@@ -9,7 +8,7 @@ from InformationRetrieval.Query.QueryResult import QueryResult
 
 class PostingList:
 
-    postings: [Posting] = []
+    postings: [Posting]
 
     @staticmethod
     def postingListComparator(listA: PostingList, listB: PostingList):
@@ -22,6 +21,7 @@ class PostingList:
                 return 0
 
     def __init__(self, line: str = None):
+        self.postings = []
         if line is not None:
             ids = line.split(" ")
             for _id in ids:
@@ -71,5 +71,5 @@ class PostingList:
     def __str__(self):
         result = ""
         for posting in self.postings:
-            result = result + posting.getId()
+            result = result + posting.getId().__str__() + " "
         return result.strip() + "\n"

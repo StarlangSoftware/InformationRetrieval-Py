@@ -5,7 +5,7 @@ from InformationRetrieval.Query.QueryResultItem import QueryResultItem
 
 class QueryResult:
 
-    _items: [QueryResultItem] = []
+    _items: [QueryResultItem]
 
     @staticmethod
     def queryResultItemComparator(resultA: QueryResultItem, resultB: QueryResultItem):
@@ -18,7 +18,7 @@ class QueryResult:
                 return 0
 
     def __init__(self):
-        pass
+        self._items = []
 
     def add(self, docId: int, score: float = 0.0):
         self._items.append(QueryResultItem(docId, score))
