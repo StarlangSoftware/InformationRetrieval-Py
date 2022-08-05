@@ -109,7 +109,7 @@ class Collection:
         if self._parameter.constructPositionalIndex():
             self.constructDictionaryAndPositionalIndexInDisk(TermType.TOKEN)
         if self._parameter.constructPhraseIndex():
-            self.constructDictionaryAndPositionalIndexInDisk(TermType.PHRASE)
+            self.constructDictionaryAndInvertedIndexInDisk(TermType.PHRASE)
             if self._parameter.constructPositionalIndex():
                 self.constructDictionaryAndPositionalIndexInDisk(TermType.PHRASE)
         if self._parameter.constructNGramIndex():
@@ -325,7 +325,7 @@ class Collection:
             if i < self._parameter.getDocumentLimit():
                 i = i + 1
             else:
-                invertedIndex.save("tmp-" + blockCount.__str__())
+                invertedIndex.saveSorted("tmp-" + blockCount.__str__())
                 invertedIndex = InvertedIndex()
                 blockCount = blockCount + 1
                 i = 0
@@ -335,7 +335,7 @@ class Collection:
                 termId = dictionary.getWordIndex(word)
                 invertedIndex.add(termId, doc.getDocId())
         if len(self._documents) != 0:
-            invertedIndex.save("tmp-" + blockCount.__str__())
+            invertedIndex.saveSorted("tmp-" + blockCount.__str__())
             blockCount = blockCount + 1
         if termType == TermType.TOKEN:
             self.combineMultipleInvertedIndexesInDisk(self._name, "", blockCount)
@@ -353,7 +353,7 @@ class Collection:
             else:
                 dictionary.save("tmp-" + blockCount.__str__())
                 dictionary = TermDictionary(self._comparator)
-                invertedIndex.save("tmp-" + blockCount.__str__())
+                invertedIndex.saveSorted("tmp-" + blockCount.__str__())
                 invertedIndex = InvertedIndex()
                 blockCount = blockCount + 1
                 i = 0
@@ -369,7 +369,7 @@ class Collection:
                 invertedIndex.add(termId, doc.getDocId())
         if len(self._documents) != 0:
             dictionary.save("tmp-" + blockCount.__str__())
-            invertedIndex.save("tmp-" + blockCount.__str__())
+            invertedIndex.saveSorted("tmp-" + blockCount.__str__())
             blockCount = blockCount + 1
         if termType == TermType.TOKEN:
             self.combineMultipleDictionariesInDisk(self._name, "", blockCount)
@@ -418,7 +418,7 @@ class Collection:
             else:
                 dictionary.save("tmp-" + blockCount.__str__())
                 dictionary = TermDictionary(self._comparator)
-                positionalIndex.save("tmp-" + blockCount.__str__())
+                positionalIndex.saveSorted("tmp-" + blockCount.__str__())
                 positionalIndex = PositionalIndex()
                 blockCount = blockCount + 1
                 i = 0
@@ -431,10 +431,10 @@ class Collection:
                 else:
                     termId = abs(termOccurrence.getTerm().getName().__hash__())
                     dictionary.addTerm(termOccurrence.getTerm().getName(), termId)
-                positionalIndex.addPosition(termId, termOccurrence.getDocID(), termOccurrence.getPosition())
+                positionalIndex.addPosition(termId, termOccurrence.getDocId(), termOccurrence.getPosition())
         if len(self._documents) != 0:
             dictionary.save("tmp-" + blockCount.__str__())
-            positionalIndex.save("tmp-" + blockCount.__str__())
+            positionalIndex.saveSorted("tmp-" + blockCount.__str__())
             blockCount = blockCount + 1
         if termType == TermType.TOKEN:
             self.combineMultipleDictionariesInDisk(self._name, "", blockCount)
@@ -451,7 +451,7 @@ class Collection:
             if i < self._parameter.getDocumentLimit():
                 i = i + 1
             else:
-                positionalIndex.save("tmp-" + blockCount.__str__())
+                positionalIndex.saveSorted("tmp-" + blockCount.__str__())
                 positionalIndex = PositionalIndex()
                 blockCount = blockCount + 1
                 i = 0
@@ -461,7 +461,7 @@ class Collection:
                 termId = dictionary.getWordIndex(termOccurrence.getTerm().getName())
                 positionalIndex.addPosition(termId, termOccurrence.getDocId(), termOccurrence.getPosition())
         if len(self._documents) != 0:
-            positionalIndex.save("tmp-" + blockCount.__str__())
+            positionalIndex.saveSorted("tmp-" + blockCount.__str__())
             blockCount = blockCount + 1
         if termType == TermType.TOKEN:
             self.combineMultiplePositionalIndexesInDisk(self._name, blockCount)

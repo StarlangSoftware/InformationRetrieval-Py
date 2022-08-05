@@ -24,19 +24,19 @@ class InvertedIndex:
                     i = 1
                     previousTerm = term
                     termId = dictionary.getWordIndex(term.getTerm().getName())
-                    self.add(termId, term.getDocID())
-                    prevDocId = term.getDocID()
+                    self.add(termId, term.getDocId())
+                    prevDocId = term.getDocId()
                     while i < len(terms):
                         term = terms[i]
                         termId = dictionary.getWordIndex(term.getTerm().getName())
                         if termId != -1:
                             if term.isDifferent(previousTerm):
-                                self.add(termId, term.getDocID())
-                                prevDocId = term.getDocID()
+                                self.add(termId, term.getDocId())
+                                prevDocId = term.getDocId()
                             else:
-                                if prevDocId != term.getDocID():
-                                    self.add(termId, term.getDocID())
-                                    prevDocId = term.getDocID()
+                                if prevDocId != term.getDocId():
+                                    self.add(termId, term.getDocId())
+                                    prevDocId = term.getDocId()
                         i = i + 1
                         previousTerm = term
             elif isinstance(dictionaryOrfileName, str):
@@ -52,6 +52,16 @@ class InvertedIndex:
             self._index[wordId] = PostingList(line)
             line = infile.readline()
         infile.close()
+
+    def saveSorted(self, fileName: str):
+        items = []
+        for key in self._index.keys():
+            items.append([key, self._index[key]])
+        items.sort()
+        outfile = open(fileName + "-postings.txt", mode="w", encoding="utf-8")
+        for item in items:
+            item[1].writeToFile(outfile, item[0])
+        outfile.close()
 
     def save(self, fileName: str):
         outfile = open(fileName + "-postings.txt", mode="w", encoding="utf-8")

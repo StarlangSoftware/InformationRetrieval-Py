@@ -59,8 +59,8 @@ class PositionalPostingList:
 
     def union(self, secondList: PositionalPostingList) -> PositionalPostingList:
         result = PositionalPostingList()
-        result._postings.append(self._postings)
-        result._postings.append(secondList._postings)
+        result._postings.extend(self._postings)
+        result._postings.extend(secondList._postings)
         return result
 
     def intersection(self, secondList: PositionalPostingList) -> PositionalPostingList:

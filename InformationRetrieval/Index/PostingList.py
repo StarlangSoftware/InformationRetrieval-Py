@@ -53,8 +53,8 @@ class PostingList:
 
     def union(self, secondList: PostingList) -> PostingList:
         result = PostingList()
-        result.postings.append(self.postings)
-        result.postings.append(secondList.postings)
+        result.postings.extend(self.postings)
+        result.postings.extend(secondList.postings)
         return result
 
     def toQueryResult(self) -> QueryResult:

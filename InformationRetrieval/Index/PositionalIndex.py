@@ -28,20 +28,20 @@ class PositionalIndex:
                     i = 1
                     previousTerm = term
                     termId = dictionary.getWordIndex(term.getTerm().getName())
-                    self.addPosition(termId, term.getDocID(), term.getPosition())
-                    prevDocId = term.getDocID()
+                    self.addPosition(termId, term.getDocId(), term.getPosition())
+                    prevDocId = term.getDocId()
                     while i < len(terms):
                         term = terms[i]
                         termId = dictionary.getWordIndex(term.getTerm().getName())
                         if termId != -1:
                             if term.isDifferent(previousTerm):
-                                self.addPosition(termId, term.getDocID(), term.getPosition())
-                                prevDocId = term.getDocID()
-                            elif prevDocId != term.getDocID():
-                                self.addPosition(termId, term.getDocID(), term.getPosition())
-                                prevDocId = term.getDocID()
+                                self.addPosition(termId, term.getDocId(), term.getPosition())
+                                prevDocId = term.getDocId()
+                            elif prevDocId != term.getDocId():
+                                self.addPosition(termId, term.getDocId(), term.getPosition())
+                                prevDocId = term.getDocId()
                             else:
-                                self.addPosition(termId, term.getDocID(), term.getPosition())
+                                self.addPosition(termId, term.getDocId(), term.getPosition())
                         i = i + 1
                         previousTerm = term
             elif isinstance(dictionaryOrfileName, str):
@@ -56,6 +56,16 @@ class PositionalIndex:
             self._positionalIndex[wordId] = PositionalPostingList(infile, int(items[1]))
             line = infile.readline().strip()
         infile.close()
+
+    def saveSorted(self, fileName: str):
+        items = []
+        for key in self._positionalIndex.keys():
+            items.append([key, self._positionalIndex[key]])
+        items.sort()
+        outfile = open(fileName + "-positionalPostings.txt", mode="w", encoding="utf-8")
+        for item in items:
+            item[1].writeToFile(outfile, item[0])
+        outfile.close()
 
     def save(self, fileName: str):
         outfile = open(fileName + "-positionalPostings.txt", mode="w", encoding="utf-8")

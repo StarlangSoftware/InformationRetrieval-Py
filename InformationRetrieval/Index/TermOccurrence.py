@@ -48,14 +48,14 @@ class TermOccurrence:
     def termOccurrenceComparator(termA: TermOccurrence, termB: TermOccurrence):
         if termA.getTerm().getName() != termB.getTerm().getName():
             return TermOccurrence.ignoreCaseComparator(termA.getTerm(), termB.getTerm())
-        elif termA.getDocID() == termB.getDocID():
+        elif termA.getDocId() == termB.getDocId():
             if termA.getPosition() == termB.getPosition():
                 return 0
             elif termA.getPosition() < termB.getPosition():
                 return -1
             else:
                 return 1
-        elif termA.getDocID() < termB.getDocID():
+        elif termA.getDocId() < termB.getDocId():
             return -1
         else:
             return 1
@@ -63,7 +63,7 @@ class TermOccurrence:
     def getTerm(self) -> Word:
         return self._term
 
-    def getDocID(self) -> int:
+    def getDocId(self) -> int:
         return self._docID
 
     def getPosition(self) -> int:
