@@ -14,9 +14,9 @@ class PostingSkipList(PostingList):
 
     def add(self, docId: int):
         p = PostingSkip(docId)
-        last: PostingSkip = self.postings[len(self.postings) - 1]
+        last: PostingSkip = self._postings[len(self._postings) - 1]
         last.setNext(p)
-        self.postings.append(p)
+        self._postings.append(p)
 
     def addSkipPointers(self):
         N = int(sqrt(self.size()))
@@ -24,21 +24,21 @@ class PostingSkipList(PostingList):
             self._skipped = True
             i = 0
             posting = 0
-            while posting != len(self.postings):
+            while posting != len(self._postings):
                 if i % N == 0 and i + N < self.size():
                     j = 0
                     skip = posting
                     while j < N:
                         j = j + 1
                         skip = skip + 1
-                    current: PostingSkip = self.postings[posting]
-                    current.addSkip(self.postings[skip])
+                    current: PostingSkip = self._postings[posting]
+                    current.addSkip(self._postings[skip])
                 posting = posting + 1
                 i = i + 1
 
-    def intersection(self, secondList: PostingSkipList):
-        p1: PostingSkip = self.postings[0]
-        p2: PostingSkip = secondList.postings[0]
+    def intersection(self, secondList: PostingSkipList) -> PostingSkipList:
+        p1: PostingSkip = self._postings[0]
+        p2: PostingSkip = secondList._postings[0]
         result = PostingSkipList()
         while p1 is not None and p2 is not None:
             if p1.getId() == p2.getId():

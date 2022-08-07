@@ -28,7 +28,7 @@ class Collection:
     _phraseDictionary: TermDictionary
     _biGramDictionary: TermDictionary
     _triGramDictionary: TermDictionary
-    _documents: [Document] = []
+    _documents: [Document]
     _incidenceMatrix: IncidenceMatrix
     _invertedIndex: InvertedIndex
     _biGramIndex: NGramIndex
@@ -45,6 +45,7 @@ class Collection:
         self._indexType = parameter.getIndexType()
         self._comparator = parameter.getWordComparator()
         self._parameter = parameter
+        self._documents = []
         for root, dirs, files in os.walk(directory):
             fileLimit = len(files)
             if parameter.limitNumberOfDocumentsLoaded():

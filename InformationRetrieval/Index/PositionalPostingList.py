@@ -1,8 +1,8 @@
 from __future__ import annotations
-from io import TextIOWrapper
 from typing import TextIO
 
 from InformationRetrieval.Index.PositionalPosting import PositionalPosting
+from InformationRetrieval.Index.Posting import Posting
 from InformationRetrieval.Query.QueryResult import QueryResult
 
 
@@ -76,12 +76,14 @@ class PositionalPostingList:
                 postings1 = p1.getPositions()
                 postings2 = p2.getPositions()
                 while position1 < len(postings1) and position2 < len(postings2):
-                    if postings1[position1] + 1 == postings2[position2].getId():
-                        result.add(p1.getDocId(), postings2[position2].getId())
+                    posting1: Posting = postings1[position1]
+                    posting2: Posting = postings2[position2]
+                    if posting1.getId() + 1 == posting2.getId():
+                        result.add(p1.getDocId(), posting2.getId())
                         position1 = position1 + 1
                         position2 = position2 + 1
                     else:
-                        if postings1[position1].getId() + 1 < postings2[position2].getId():
+                        if posting1.getId() + 1 < posting2.getId():
                             position1 = position1 + 1
                         else:
                             position2 = position2 + 1

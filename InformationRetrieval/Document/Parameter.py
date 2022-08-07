@@ -1,4 +1,3 @@
-from Dictionary.Word import Word
 from MorphologicalAnalysis.FsmMorphologicalAnalyzer import FsmMorphologicalAnalyzer
 from MorphologicalDisambiguation.MorphologicalDisambiguator import MorphologicalDisambiguator
 
@@ -25,7 +24,6 @@ class Parameter:
 
     def __init__(self):
         self._wordComparator = TermOccurrence.ignoreCaseComparator
-        pass
 
     def getIndexType(self) -> IndexType:
         return self._indexType

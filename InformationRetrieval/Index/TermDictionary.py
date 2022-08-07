@@ -43,10 +43,10 @@ class TermDictionary(Dictionary):
                     for word in fileNameOrTerms:
                         wordList.append(Word(word))
                     wordList.sort(key=cmp_to_key(comparator))
-                    termID = 0
+                    termId = 0
                     for termWord in wordList:
-                        self.addTerm(termWord.getName(), termID)
-                        termID = termID + 1
+                        self.addTerm(termWord.getName(), termId)
+                        termId = termId + 1
 
     def __getPosition(self, word: Word) -> int:
         lo = 0

@@ -22,7 +22,7 @@ class PositionalPosting:
     def size(self) -> int:
         return len(self._positions)
 
-    def __str__(self):
+    def __str__(self) -> str:
         result = self._docId.__str__() + " " + len(self._positions).__str__()
         for posting in self._positions:
             result = result + " " + posting.getId().__str__()

@@ -17,10 +17,10 @@ class IncidenceMatrix:
         if len(terms) > 0:
             term: TermOccurrence = terms[0]
             i = 1
-            self.set(dictionary.getWordIndex(term.getTerm().getName()), term.getDocID())
+            self.set(dictionary.getWordIndex(term.getTerm().getName()), term.getDocId())
             while i < len(terms):
                 term = terms[i]
-                self.set(dictionary.getWordIndex(term.getTerm().getName()), term.getDocID())
+                self.set(dictionary.getWordIndex(term.getTerm().getName()), term.getDocId())
                 i = i + 1
 
     def set(self, row: int, col: int):
