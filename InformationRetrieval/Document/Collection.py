@@ -480,8 +480,8 @@ class Collection:
     def searchCollection(self,
                          query: Query,
                          retrievalType: RetrievalType,
-                         termWeighting: TermWeighting,
-                         documentWeighting: DocumentWeighting):
+                         termWeighting: TermWeighting = TermWeighting.NATURAL,
+                         documentWeighting: DocumentWeighting = DocumentWeighting.NO_IDF):
         if self._indexType == IndexType.INCIDENCE_MATRIX:
             return self._incidenceMatrix.search(query, self._dictionary)
         else:

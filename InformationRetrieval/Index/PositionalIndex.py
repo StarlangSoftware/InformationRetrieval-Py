@@ -91,13 +91,13 @@ class PositionalIndex:
                 elif postingResult is not None:
                     postingResult = postingResult.intersection(self._positionalIndex[term])
                 else:
-                    return None
+                    return QueryResult()
             else:
-                return None
+                return QueryResult()
         if postingResult is not None:
             return postingResult.toQueryResult()
         else:
-            return None
+            return QueryResult()
 
     def getTermFrequencies(self, docId: int) -> [int]:
         tf = []
