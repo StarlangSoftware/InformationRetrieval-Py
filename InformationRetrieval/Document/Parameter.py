@@ -7,106 +7,106 @@ from InformationRetrieval.Index.TermOccurrence import TermOccurrence
 
 class Parameter:
 
-    _indexType: IndexType = IndexType.INVERTED_INDEX
-    _wordComparator: object
-    _loadIndexesFromFile: bool = False
-    _disambiguator: MorphologicalDisambiguator
-    _fsm: FsmMorphologicalAnalyzer
-    _normalizeDocument: bool = False
-    _phraseIndex: bool = True
-    _positionalIndex: bool = True
-    _constructNGramIndex: bool = True
-    _constructIndexInDisk: bool = False
-    _constructDictionaryInDisk: bool = False
-    _limitNumberOfDocumentsLoaded: bool = False
-    _documentLimit: int = 1000
-    _wordLimit: int = 10000
+    __index_type: IndexType = IndexType.INVERTED_INDEX
+    __word_comparator: object
+    __load_indexes_from_file: bool = False
+    __disambiguator: MorphologicalDisambiguator
+    __fsm: FsmMorphologicalAnalyzer
+    __normalize_document: bool = False
+    __phrase_index: bool = True
+    __positional_index: bool = True
+    __construct_n_gram_index: bool = True
+    __construct_index_in_disk: bool = False
+    __construct_dictionary_in_disk: bool = False
+    __limit_number_of_documents_loaded: bool = False
+    __document_limit: int = 1000
+    __word_limit: int = 10000
 
     def __init__(self):
-        self._wordComparator = TermOccurrence.ignoreCaseComparator
+        self.__word_comparator = TermOccurrence.ignoreCaseComparator
 
     def getIndexType(self) -> IndexType:
-        return self._indexType
+        return self.__index_type
 
     def getWordComparator(self) -> object:
-        return self._wordComparator
+        return self.__word_comparator
 
     def loadIndexesFromFile(self) -> bool:
-        return self._loadIndexesFromFile
+        return self.__load_indexes_from_file
 
     def getDisambiguator(self) -> MorphologicalDisambiguator:
-        return self._disambiguator
+        return self.__disambiguator
 
     def getFsm(self) -> FsmMorphologicalAnalyzer:
-        return self._fsm
+        return self.__fsm
 
     def constructPhraseIndex(self) -> bool:
-        return self._phraseIndex
+        return self.__phrase_index
 
     def normalizeDocument(self) -> bool:
-        return self._normalizeDocument
+        return self.__normalize_document
 
     def constructPositionalIndex(self) -> bool:
-        return self._positionalIndex
+        return self.__positional_index
 
     def constructNGramIndex(self) -> bool:
-        return self._constructNGramIndex
+        return self.__construct_n_gram_index
 
     def constructIndexInDisk(self) -> bool:
-        return self._constructIndexInDisk
+        return self.__construct_index_in_disk
 
     def limitNumberOfDocumentsLoaded(self) -> bool:
-        return self._limitNumberOfDocumentsLoaded
+        return self.__limit_number_of_documents_loaded
 
     def getDocumentLimit(self) -> int:
-        return self._documentLimit
+        return self.__document_limit
 
     def constructDictionaryInDisk(self) -> bool:
-        return self._constructDictionaryInDisk
+        return self.__construct_dictionary_in_disk
 
     def getWordLimit(self) -> int:
-        return self._wordLimit
+        return self.__word_limit
 
     def setIndexType(self, indexType: IndexType):
-        self._indexType = indexType
+        self.__index_type = indexType
 
     def setWordComparator(self, wordComparator: object):
-        self._wordComparator = wordComparator
+        self.__word_comparator = wordComparator
 
     def setLoadIndexesFromFile(self, loadIndexesFromFile: bool):
-        self._loadIndexesFromFile = loadIndexesFromFile
+        self.__load_indexes_from_file = loadIndexesFromFile
 
     def setDisambiguator(self, disambiguator: MorphologicalDisambiguator):
-        self._disambiguator = disambiguator
+        self.__disambiguator = disambiguator
 
     def setFsm(self, fsm: FsmMorphologicalAnalyzer):
-        self._fsm = fsm
+        self.__fsm = fsm
 
     def setNormalizeDocument(self, normalizeDocument: bool):
-        self._normalizeDocument = normalizeDocument
+        self.__normalize_document = normalizeDocument
 
     def setPhraseIndex(self, phraseIndex: bool):
-        self._phraseIndex = phraseIndex
+        self.__phrase_index = phraseIndex
 
     def setPositionalIndex(self, positionalIndex: bool):
-        self._positionalIndex = positionalIndex
+        self.__positional_index = positionalIndex
 
     def setNGramIndex(self, nGramIndex: bool):
-        self._constructNGramIndex = nGramIndex
+        self.__construct_n_gram_index = nGramIndex
 
     def setConstructIndexInDisk(self, constructIndexInDisk: bool):
-        self._constructIndexInDisk = constructIndexInDisk
+        self.__construct_index_in_disk = constructIndexInDisk
 
     def setLimitNumberOfDocumentsLoaded(self, limitNumberOfDocumentsLoaded: bool):
-        self._limitNumberOfDocumentsLoaded = limitNumberOfDocumentsLoaded
+        self.__limit_number_of_documents_loaded = limitNumberOfDocumentsLoaded
 
     def setDocumentLimit(self, documentLimit: int):
-        self._documentLimit = documentLimit
+        self.__document_limit = documentLimit
 
     def setConstructDictionaryInDisk(self, constructDictionaryInDisk: bool):
-        self._constructDictionaryInDisk = constructDictionaryInDisk
-        if self._constructDictionaryInDisk:
-            self._constructIndexInDisk = True
+        self.__construct_dictionary_in_disk = constructDictionaryInDisk
+        if self.__construct_dictionary_in_disk:
+            self.__construct_index_in_disk = True
 
     def setWordLimit(self, wordLimit: int):
-        self._wordLimit = wordLimit
+        self.__word_limit = wordLimit

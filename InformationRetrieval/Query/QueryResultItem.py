@@ -1,14 +1,14 @@
 class QueryResultItem:
 
-    _docId: int
-    _score: float
+    __doc_id: int
+    __score: float
 
     def __init__(self, docId: int, score: float):
-        self._docId = docId
-        self._score = score
+        self.__doc_id = docId
+        self.__score = score
 
     def getDocId(self) -> int:
-        return self._docId
+        return self.__doc_id
 
     def getScore(self) -> float:
-        return self._score
+        return self.__score

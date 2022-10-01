@@ -5,10 +5,11 @@ from InformationRetrieval.Query.QueryResultItem import QueryResultItem
 
 class QueryResult:
 
-    _items: [QueryResultItem]
+    __items: [QueryResultItem]
 
     @staticmethod
-    def queryResultItemComparator(resultA: QueryResultItem, resultB: QueryResultItem):
+    def queryResultItemComparator(resultA: QueryResultItem,
+                                  resultB: QueryResultItem):
         if resultA.getScore() > resultB.getScore():
             return -1
         else:
@@ -18,13 +19,13 @@ class QueryResult:
                 return 0
 
     def __init__(self):
-        self._items = []
+        self.__items = []
 
     def add(self, docId: int, score: float = 0.0):
-        self._items.append(QueryResultItem(docId, score))
+        self.__items.append(QueryResultItem(docId, score))
 
     def getItems(self) -> [QueryResultItem]:
-        return self._items
+        return self.__items
 
     def sort(self):
-        self._items.sort(key=cmp_to_key(self.queryResultItemComparator))
+        self.__items.sort(key=cmp_to_key(self.queryResultItemComparator))

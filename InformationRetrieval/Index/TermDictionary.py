@@ -9,44 +9,46 @@ from InformationRetrieval.Index.TermOccurrence import TermOccurrence
 
 class TermDictionary(Dictionary):
 
-    def __init__(self, comparator: object, fileNameOrTerms = None):
+    def __init__(self,
+                 comparator: object,
+                 fileNameOrTerms = None):
         super().__init__(comparator)
         if fileNameOrTerms is not None:
             if isinstance(fileNameOrTerms, str):
-                fileName: str = fileNameOrTerms
-                infile = open(fileName + "-dictionary.txt", mode='r', encoding='utf-8')
-                line = infile.readline().strip()
+                file_name: str = fileNameOrTerms
+                input_file = open(file_name + "-dictionary.txt", mode='r', encoding='utf-8')
+                line = input_file.readline().strip()
                 while line != "":
-                    termId = int(line[0:line.index(" ")])
-                    self.words.append(Term(line[line.index(" ") + 1:], termId))
-                    line = infile.readline().strip()
-                infile.close()
+                    term_id = int(line[0:line.index(" ")])
+                    self.words.append(Term(line[line.index(" ") + 1:], term_id))
+                    line = input_file.readline().strip()
+                input_file.close()
             else:
                 if isinstance(fileNameOrTerms, list):
-                    termId = 0
+                    term_id = 0
                     terms: [TermOccurrence] = fileNameOrTerms
                     if len(terms) > 0:
                         term = terms[0]
-                        self.addTerm(term.getTerm().getName(), termId)
-                        termId = termId + 1
-                        previousTerm = term
+                        self.addTerm(term.getTerm().getName(), term_id)
+                        term_id = term_id + 1
+                        previous_term = term
                         i = 1
                         while i < len(terms):
                             term: TermOccurrence = terms[i]
-                            if term.isDifferent(previousTerm):
-                                self.addTerm(term.getTerm().getName(), termId)
-                                termId = termId + 1
+                            if term.isDifferent(previous_term):
+                                self.addTerm(term.getTerm().getName(), term_id)
+                                term_id = term_id + 1
                             i = i + 1
-                            previousTerm = term
+                            previous_term = term
                 else:
-                    wordList: [Word] = []
+                    word_list: [Word] = []
                     for word in fileNameOrTerms:
-                        wordList.append(Word(word))
-                    wordList.sort(key=cmp_to_key(comparator))
-                    termId = 0
-                    for termWord in wordList:
-                        self.addTerm(termWord.getName(), termId)
-                        termId = termId + 1
+                        word_list.append(Word(word))
+                    word_list.sort(key=cmp_to_key(comparator))
+                    term_id = 0
+                    for term_word in word_list:
+                        self.addTerm(term_word.getName(), term_id)
+                        term_id = term_id + 1
 
     def __getPosition(self, word: Word) -> int:
         lo = 0
@@ -61,21 +63,25 @@ class TermDictionary(Dictionary):
                 return mid
         return -(lo + 1)
 
-    def addTerm(self, name: str, termId: int):
+    def addTerm(self,
+                name: str,
+                termId: int):
         middle = self.__getPosition(Word(name))
         if middle < 0:
             self.words.insert(-middle - 1, Term(name, termId))
 
     def save(self, fileName: str):
-        outfile = open(fileName + "-dictionary.txt", mode='w', encoding='utf-8')
+        output_file = open(fileName + "-dictionary.txt", mode='w', encoding='utf-8')
         for word in self.words:
             term: Term = word
-            outfile.write(term.getTermId().__str__() + " " + term.getName() + "\n")
-        outfile.close()
+            output_file.write(term.getTermId().__str__() + " " + term.getName() + "\n")
+        output_file.close()
 
     @staticmethod
-    def constructNGrams(word: str, termId: int, k: int) -> [TermOccurrence]:
-        nGrams = []
+    def constructNGrams(word: str,
+                        termId: int,
+                        k: int) -> [TermOccurrence]:
+        n_grams = []
         if len(word) >= k - 1:
             for j in range(-1, len(word) - k + 2):
                 if j == -1:
@@ -84,8 +90,8 @@ class TermDictionary(Dictionary):
                     term = word[j: j + k - 1] + "$"
                 else:
                     term = word[j: j + k]
-                nGrams.append(TermOccurrence(Word(term), termId, j))
-        return nGrams
+                n_grams.append(TermOccurrence(Word(term), termId, j))
+        return n_grams
 
     def constructTermsFromDictionary(self, k: int) -> [TermOccurrence]:
         terms : [TermOccurrence] = []

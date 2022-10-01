@@ -1,9 +1,9 @@
 class Posting:
 
-    Id: int
+    __id: int
 
     def __init__(self, Id: int):
-        self.Id = Id
+        self.__id = Id
 
     def getId(self) -> int:
-        return self.Id
+        return self.__id

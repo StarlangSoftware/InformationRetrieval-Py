@@ -3,11 +3,11 @@ from Dictionary.Word import Word
 
 class Term(Word):
 
-    _termId: int
+    __term_id: int
 
     def __init__(self, name: str, termId: int):
         super().__init__(name)
-        self._termId = termId
+        self.__term_id = termId
 
     def getTermId(self) -> int:
-        return self._termId
+        return self.__term_id

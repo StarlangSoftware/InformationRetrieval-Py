@@ -3,16 +3,16 @@ from Dictionary.Word import Word
 
 class Query:
 
-    _terms: [Word]
+    __terms: [Word]
 
     def __init__(self, query: str):
-        self._terms = []
+        self.__terms = []
         terms = query.split(" ")
         for term in terms:
-            self._terms.append(Word(term))
+            self.__terms.append(Word(term))
 
     def getTerm(self, index: int) -> Word:
-        return self._terms[index]
+        return self.__terms[index]
 
     def size(self) -> int:
-        return len(self._terms)
+        return len(self.__terms)
