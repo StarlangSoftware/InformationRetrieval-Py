@@ -125,6 +125,19 @@ class PositionalIndex:
             i = i + 1
         return df
 
+    def setDocumentSizes(self, documents: [Document]):
+        sizes = []
+        for i in range(len(documents)):
+            sizes.append(0)
+        for key in self.__positional_index.keys():
+            positional_posting_list = self.__positional_index[key]
+            for i in range(positional_posting_list.size()):
+                positional_posting = positional_posting_list.get(i)
+                doc_id = positional_posting.getDocId()
+                sizes[doc_id] = sizes[doc_id] + positional_posting.size()
+        for doc in documents:
+            doc.setSize(sizes[doc.getDocId()])
+
     def rankedSearch(self,
                      query: Query,
                      dictionary: TermDictionary,

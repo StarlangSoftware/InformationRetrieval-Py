@@ -51,3 +51,6 @@ class Document:
 
     def getSize(self) -> int:
         return self.__size
+
+    def setSize(self, size: int):
+        self.__size = size

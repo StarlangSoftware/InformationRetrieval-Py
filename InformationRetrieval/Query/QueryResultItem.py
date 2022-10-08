@@ -12,3 +12,6 @@ class QueryResultItem:
 
     def getScore(self) -> float:
         return self.__score
+
+    def __repr__(self):
+        return f"{self.__doc_id} {self.__score}"

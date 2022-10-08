@@ -29,3 +29,6 @@ class QueryResult:
 
     def sort(self):
         self.__items.sort(key=cmp_to_key(self.queryResultItemComparator))
+
+    def __repr__(self):
+        return f"{self.__items}"
