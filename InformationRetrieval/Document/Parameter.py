@@ -1,6 +1,7 @@
 from MorphologicalAnalysis.FsmMorphologicalAnalyzer import FsmMorphologicalAnalyzer
 from MorphologicalDisambiguation.MorphologicalDisambiguator import MorphologicalDisambiguator
 
+from InformationRetrieval.Document.DocumentType import DocumentType
 from InformationRetrieval.Document.IndexType import IndexType
 from InformationRetrieval.Index.TermOccurrence import TermOccurrence
 
@@ -21,6 +22,7 @@ class Parameter:
     __limit_number_of_documents_loaded: bool = False
     __document_limit: int = 1000
     __word_limit: int = 10000
+    __document_type: DocumentType = DocumentType.NORMAL
 
     def __init__(self):
         self.__word_comparator = TermOccurrence.ignoreCaseComparator
@@ -110,3 +112,9 @@ class Parameter:
 
     def setWordLimit(self, wordLimit: int):
         self.__word_limit = wordLimit
+
+    def getDocumentType(self) -> DocumentType:
+        return self.__document_type
+
+    def setDocumentType(self, documentType: DocumentType):
+        self.__document_type = documentType
