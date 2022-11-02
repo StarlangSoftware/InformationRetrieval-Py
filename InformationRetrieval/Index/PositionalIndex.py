@@ -138,6 +138,14 @@ class PositionalIndex:
         for doc in documents:
             doc.setSize(sizes[doc.getDocId()])
 
+    def setCategoryCounts(self, documents: [Document]):
+        for key in self.__positional_index.keys():
+            positional_posting_list = self.__positional_index[key]
+            for i in range(positional_posting_list.size()):
+                positional_posting = positional_posting_list.get(i)
+                doc_id = positional_posting.getDocId()
+                documents[doc_id].getCategoryNode().addCounts(key, positional_posting.size())
+
     def rankedSearch(self,
                      query: Query,
                      dictionary: TermDictionary,

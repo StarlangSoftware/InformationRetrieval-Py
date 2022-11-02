@@ -6,9 +6,9 @@ from Dictionary.Word import Word
 
 from InformationRetrieval.Document.Document import Document
 from InformationRetrieval.Document.DocumentType import DocumentType
-from InformationRetrieval.Document.DocumentWeighting import DocumentWeighting
 from InformationRetrieval.Document.IndexType import IndexType
 from InformationRetrieval.Document.Parameter import Parameter
+from InformationRetrieval.Index.CategoryTree import CategoryTree
 from InformationRetrieval.Index.IncidenceMatrix import IncidenceMatrix
 from InformationRetrieval.Index.InvertedIndex import InvertedIndex
 from InformationRetrieval.Index.NGramIndex import NGramIndex
@@ -18,7 +18,6 @@ from InformationRetrieval.Index.PostingList import PostingList
 from InformationRetrieval.Index.TermDictionary import TermDictionary
 from InformationRetrieval.Index.TermOccurrence import TermOccurrence
 from InformationRetrieval.Index.TermType import TermType
-from InformationRetrieval.Index.TermWeighting import TermWeighting
 from InformationRetrieval.Query.Query import Query
 from InformationRetrieval.Query.RetrievalType import RetrievalType
 from InformationRetrieval.Query.SearchParameter import SearchParameter
@@ -42,6 +41,7 @@ class Collection:
     __comparator: object
     __name: str
     __parameter: Parameter
+    __category_tree: CategoryTree
 
     def __init__(self,
                  directory: str,
@@ -89,6 +89,8 @@ class Collection:
             self.constructIndexesInDisk()
         else:
             self.constructIndexesInMemory()
+        if parameter.getDocumentType() == DocumentType.CATEGORICAL:
+            self.__positional_index.setCategoryCounts(self.__documents)
 
     def size(self) -> int:
         return len(self.__documents)
@@ -118,16 +120,17 @@ class Collection:
     def saveCategories(self):
         output_file = open(self.__name + "-categories.txt", mode="w", encoding="utf-8")
         for document in self.__documents:
-            output_file.write(document.getDocId().__str__() + "\t" + document.getCategoryHierarchy().__str__() + "\n")
+            output_file.write(document.getDocId().__str__() + "\t" + document.getCategory().__str__() + "\n")
         output_file.close()
 
     def loadCategories(self):
+        self.__category_tree = CategoryTree(self.__name)
         input_file = open(self.__name + "-categories.txt", mode="r", encoding="utf-8")
         line = input_file.readline().strip()
         while line != "":
             items = line.split("\t")
             doc_id = int(items[0])
-            self.__documents[doc_id].setCategoryHierarchy(items[1])
+            self.__documents[doc_id].setCategory(self.__category_tree, items[1])
             line = input_file.readline()
         input_file.close()
 
@@ -174,6 +177,10 @@ class Collection:
                     self.__phrase_positional_index = PositionalIndex(self.__phrase_dictionary, terms)
             if self.__parameter.constructNGramIndex():
                 self.constructNGramIndex()
+            if self.__parameter.getDocumentType() == DocumentType.CATEGORICAL:
+                self.__category_tree = CategoryTree(self.__name)
+                for document in self.__documents:
+                    document.loadCategory(self.__category_tree)
 
     def constructTerms(self, termType: TermType) -> [TermOccurrence]:
         terms: [TermOccurrence] = []
@@ -506,6 +513,9 @@ class Collection:
         terms = self.__dictionary.constructTermsFromDictionary(3)
         self.__tri_gram_dictionary = TermDictionary(self.__comparator, terms)
         self.__tri_gram_index = NGramIndex(self.__tri_gram_dictionary, terms)
+
+    def topNString(self, N: int) -> str:
+        return self.__category_tree.topNString(self.__dictionary, N)
 
     def searchCollection(self,
                          query: Query,

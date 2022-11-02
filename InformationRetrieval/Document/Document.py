@@ -1,13 +1,10 @@
 from Corpus.Corpus import Corpus
-from Corpus.Sentence import Sentence
 from Corpus.TurkishSplitter import TurkishSplitter
-from Dictionary.Word import Word
-from MorphologicalAnalysis.FsmMorphologicalAnalyzer import FsmMorphologicalAnalyzer
-from MorphologicalDisambiguation.MorphologicalDisambiguator import MorphologicalDisambiguator
 
-from InformationRetrieval.Document.CategoryHierarchy import CategoryHierarchy
 from InformationRetrieval.Document.DocumentText import DocumentText
 from InformationRetrieval.Document.DocumentType import DocumentType
+from InformationRetrieval.Index.CategoryNode import CategoryNode
+from InformationRetrieval.Index.CategoryTree import CategoryTree
 
 
 class Document:
@@ -17,7 +14,7 @@ class Document:
     __doc_id: int
     __size: int = 0
     __document_type: DocumentType
-    __category_hierarchy: CategoryHierarchy
+    __category: CategoryNode
 
     def __init__(self, documentType: DocumentType, absoluteFileName: str, fileName: str, docId: int):
         self.__absolute_file_name = absoluteFileName
@@ -32,7 +29,6 @@ class Document:
         elif self.__document_type == DocumentType.CATEGORICAL:
             corpus = Corpus(self.__absolute_file_name)
             if corpus.sentenceCount() >= 2:
-                self.__category_hierarchy = CategoryHierarchy(corpus.getSentence(0).__str__())
                 document_text = DocumentText()
                 sentences = TurkishSplitter().split(corpus.getSentence(1).__str__())
                 for sentence in sentences:
@@ -41,6 +37,12 @@ class Document:
             else:
                 return None
         return document_text
+
+    def loadCategory(self, categoryTree: CategoryTree):
+        if self.__document_type == DocumentType.CATEGORICAL:
+            corpus = Corpus(self.__absolute_file_name)
+            if corpus.sentenceCount() >= 2:
+                self.__category = categoryTree.addCategoryHierarchy(corpus.getSentence(0).__str__())
 
     def getDocId(self) -> int:
         return self.__doc_id
@@ -57,8 +59,11 @@ class Document:
     def setSize(self, size: int):
         self.__size = size
 
-    def setCategoryHierarchy(self, categoryHierarchy: str):
-        self.__category_hierarchy = CategoryHierarchy(categoryHierarchy)
+    def setCategory(self, categoryTree: CategoryTree, category: str):
+        self.__category = categoryTree.addCategoryHierarchy(category)
 
-    def getCategoryHierarchy(self) -> CategoryHierarchy:
-        return self.__category_hierarchy
+    def getCategory(self) -> str:
+        return self.__category.__str__()
+
+    def getCategoryNode(self) -> CategoryNode:
+        return self.__category
