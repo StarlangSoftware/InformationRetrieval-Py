@@ -1,5 +1,7 @@
 from InformationRetrieval.Index.CategoryNode import CategoryNode
 from InformationRetrieval.Index.TermDictionary import TermDictionary
+from InformationRetrieval.Query.CategoryDeterminationType import CategoryDeterminationType
+from InformationRetrieval.Query.Query import Query
 
 
 class CategoryTree:
@@ -19,15 +21,19 @@ class CategoryTree:
             current = node
         return current
 
-    def topNString(self, dictionary: TermDictionary, N: int) -> str:
-        queue = [self.__root]
-        result = ""
-        while len(queue) > 0:
-            node = queue.pop(0)
-            if node != self.__root:
-                result = result + node.topNString(dictionary, N) + "\n"
-            queue.extend(node.getChildren())
+    def getCategories(self,
+                      query: Query,
+                      dictionary: TermDictionary,
+                      categoryDeterminationType: CategoryDeterminationType) -> [CategoryNode]:
+        result = []
+        if categoryDeterminationType == CategoryDeterminationType.KEYWORD:
+            self.__root.getCategoriesWithKeyword(query, result)
+        elif categoryDeterminationType == CategoryDeterminationType.COSINE:
+            self.__root.getCategoriesWithCosine(query, dictionary, result)
         return result
+
+    def setRepresentativeCount(self, representativeCount: int):
+        self.__root.setRepresentativeCount(representativeCount)
 
     def __repr__(self):
         return self.__root.__repr__()

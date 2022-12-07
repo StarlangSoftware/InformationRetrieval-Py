@@ -17,12 +17,11 @@ class Parameter:
     __phrase_index: bool = True
     __positional_index: bool = True
     __construct_n_gram_index: bool = True
-    __construct_index_in_disk: bool = False
-    __construct_dictionary_in_disk: bool = False
     __limit_number_of_documents_loaded: bool = False
     __document_limit: int = 1000
     __word_limit: int = 10000
     __document_type: DocumentType = DocumentType.NORMAL
+    __representative_count: int = 10
 
     def __init__(self):
         self.__word_comparator = TermOccurrence.ignoreCaseComparator
@@ -54,20 +53,17 @@ class Parameter:
     def constructNGramIndex(self) -> bool:
         return self.__construct_n_gram_index
 
-    def constructIndexInDisk(self) -> bool:
-        return self.__construct_index_in_disk
-
     def limitNumberOfDocumentsLoaded(self) -> bool:
         return self.__limit_number_of_documents_loaded
 
     def getDocumentLimit(self) -> int:
         return self.__document_limit
 
-    def constructDictionaryInDisk(self) -> bool:
-        return self.__construct_dictionary_in_disk
-
     def getWordLimit(self) -> int:
         return self.__word_limit
+
+    def getRepresentativeCount(self) -> int:
+        return self.__representative_count
 
     def setIndexType(self, indexType: IndexType):
         self.__index_type = indexType
@@ -96,22 +92,17 @@ class Parameter:
     def setNGramIndex(self, nGramIndex: bool):
         self.__construct_n_gram_index = nGramIndex
 
-    def setConstructIndexInDisk(self, constructIndexInDisk: bool):
-        self.__construct_index_in_disk = constructIndexInDisk
-
     def setLimitNumberOfDocumentsLoaded(self, limitNumberOfDocumentsLoaded: bool):
         self.__limit_number_of_documents_loaded = limitNumberOfDocumentsLoaded
 
     def setDocumentLimit(self, documentLimit: int):
         self.__document_limit = documentLimit
 
-    def setConstructDictionaryInDisk(self, constructDictionaryInDisk: bool):
-        self.__construct_dictionary_in_disk = constructDictionaryInDisk
-        if self.__construct_dictionary_in_disk:
-            self.__construct_index_in_disk = True
-
     def setWordLimit(self, wordLimit: int):
         self.__word_limit = wordLimit
+
+    def setRepresentativeCount(self, representativeCount: int):
+        self.__representative_count = representativeCount
 
     def getDocumentType(self) -> DocumentType:
         return self.__document_type
