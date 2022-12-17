@@ -79,6 +79,18 @@ class InvertedIndex:
         posting_list.add(docId)
         self.__index[termId] = posting_list
 
+    def autoCompleteWord(self,
+                         wordList: [str],
+                         dictionary: TermDictionary):
+        counts = []
+        for word in wordList:
+            counts.append(self.__index[dictionary.getWordIndex(word)].size())
+        for i in range(len(wordList) - 1):
+            for j in range(i + 1, len(wordList)):
+                if counts[i] < counts[j]:
+                    counts[i], counts[j] = counts[j], counts[i]
+                    wordList[i], wordList[j] = wordList[j], wordList[i]
+
     def search(self,
                query: Query,
                dictionary: TermDictionary) -> QueryResult:

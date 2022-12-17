@@ -159,6 +159,18 @@ class MemoryCollection(AbstractCollection):
                     break
         return filtered_result
 
+    def autoCompleteWord(self, prefix: str) -> [str]:
+        result = []
+        i = self.dictionary.getWordStartingWith(prefix)
+        while i < self.dictionary.size():
+            if self.dictionary.getWordWithIndex(i).getName().startswith(prefix):
+                result.append(self.dictionary.getWordWithIndex(i).getName())
+            else:
+                break
+            i = i + 1
+        self.inverted_index.autoCompleteWord(result, self.dictionary)
+        return result
+
     def searchCollection(self,
                          query: Query,
                          searchParameter: SearchParameter):
