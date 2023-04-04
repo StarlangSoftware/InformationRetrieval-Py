@@ -63,8 +63,10 @@ class AbstractCollection:
         line = input_file.readline().strip()
         while line != "":
             items = line.split("\t")
-            doc_id = int(items[0])
-            self.documents[doc_id].setCategory(self.category_tree, items[1])
+            if len(items) > 0:
+                doc_id = int(items[0])
+                if len(items) > 1:
+                    self.documents[doc_id].setCategory(self.category_tree, items[1])
             line = input_file.readline().strip()
         input_file.close()
 
