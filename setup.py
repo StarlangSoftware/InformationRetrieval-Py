@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='NlpToolkit-InformationRetrieval',
-    version='1.0.5',
+    version='1.0.6',
     packages=['InformationRetrieval',
               'InformationRetrieval.Document',
               'InformationRetrieval.Index',
