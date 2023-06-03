@@ -22,8 +22,9 @@ class Query:
     def filterAttributes(self,
                          attributeList: set,
                          termAttributes: Query,
-                         phraseAttributes: Query):
+                         phraseAttributes: Query) -> Query:
         i = 0
+        filtered_query = Query()
         while i < self.size():
             if i < self.size() - 1:
                 pair = self.__terms[i].getName() + " " + self.__terms[i + 1].getName()
@@ -33,4 +34,7 @@ class Query:
                     continue
             if self.__terms[i].getName() in attributeList:
                 termAttributes.__terms.append(self.__terms[i])
+            else:
+                filtered_query.__terms.append(self.__terms[i])
             i = i + 1
+        return filtered_query

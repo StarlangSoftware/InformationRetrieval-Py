@@ -13,6 +13,7 @@ class SearchParameter:
     __document_weighting: DocumentWeighting
     __term_weighting: TermWeighting
     __documents_retrieved: int
+    __search_attributes: bool
 
     def __init__(self):
         self.__retrieval_type = RetrievalType.RANKED
@@ -21,6 +22,7 @@ class SearchParameter:
         self.__documents_retrieved = 1
         self.__category_determination_type = CategoryDeterminationType.KEYWORD
         self.__focus_type = FocusType.OVERALL
+        self.__search_attributes = False
 
     def getRetrievalType(self) -> RetrievalType:
         return self.__retrieval_type
@@ -40,6 +42,9 @@ class SearchParameter:
     def getFocusType(self) -> FocusType:
         return self.__focus_type
 
+    def getSearchAttributes(self) -> bool:
+        return self.__search_attributes
+
     def setRetrievalType(self, retrievalType: RetrievalType):
         self.__retrieval_type = retrievalType
 
@@ -57,3 +62,6 @@ class SearchParameter:
 
     def setFocusType(self, focusType: FocusType):
         self.__focus_type = focusType
+
+    def setSearchAttributes(self, searchAttributes: bool):
+        self.__search_attributes = searchAttributes

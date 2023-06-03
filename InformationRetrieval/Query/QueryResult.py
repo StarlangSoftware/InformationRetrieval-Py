@@ -20,7 +20,7 @@ class QueryResult:
     def getItems(self) -> [QueryResultItem]:
         return self.__items
 
-    def intersection(self, queryResult: QueryResult) -> QueryResult:
+    def intersectionFastSearch(self, queryResult: QueryResult) -> QueryResult:
         result = QueryResult()
         i = 0
         j = 0
@@ -36,6 +36,34 @@ class QueryResult:
                     i = i + 1
                 else:
                     j = j + 1
+        return result
+
+    def intersectionBinarySearch(self, queryResult: QueryResult) -> QueryResult:
+        result = QueryResult()
+        for searched_item in self.__items:
+            low = 0
+            high = queryResult.size() - 1
+            middle = (low + high) // 2
+            found = False
+            while low <= high:
+                if searched_item.getDocId() > queryResult.__items[middle].getDocId():
+                    low = middle + 1
+                elif searched_item.getDocId() < queryResult.__items[middle].getDocId():
+                    high = middle - 1
+                else:
+                    found = True
+                    break
+                middle = (low + high) // 2
+            if found:
+                result.add(searched_item.getDocId(), searched_item.getScore())
+        return result
+
+    def intersectionLinearSearch(self, queryResult: QueryResult) -> QueryResult:
+        result = QueryResult()
+        for searched_item in self.__items:
+            for item in queryResult.__items:
+                if searched_item.getDocId() == item.getDocId():
+                    result.add(searched_item.getDocId(), searched_item.getScore())
         return result
 
     def getBest(self, K: int):
