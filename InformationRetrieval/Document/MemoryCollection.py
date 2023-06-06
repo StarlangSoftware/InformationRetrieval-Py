@@ -22,7 +22,6 @@ from InformationRetrieval.Query.SearchParameter import SearchParameter
 
 
 class MemoryCollection(AbstractCollection):
-
     __index_type: IndexType
 
     def __init__(self,
@@ -130,13 +129,20 @@ class MemoryCollection(AbstractCollection):
         if filtered_query.size() == 0:
             return attribute_result
         else:
-            filtered_result = self.searchWithInvertedIndex(filtered_query, parameter)
             if parameter.getRetrievalType() != RetrievalType.RANKED:
+                filtered_result = self.searchWithInvertedIndex(filtered_query, parameter)
                 return filtered_result.intersectionFastSearch(attribute_result)
-            elif attribute_result.size() < 10:
-                return filtered_result.intersectionLinearSearch(attribute_result)
             else:
-                return filtered_result.intersectionBinarySearch(attribute_result)
+                filtered_result = self.positional_index.rankedSearch(filtered_query,
+                                                                     self.dictionary,
+                                                                     self.documents,
+                                                                     parameter)
+                if attribute_result.size() < 10:
+                    filtered_result = filtered_result.intersectionLinearSearch(attribute_result)
+                else:
+                    filtered_result = filtered_result.intersectionBinarySearch(attribute_result)
+                filtered_result.getBest(parameter.getDocumentsRetrieved())
+                return filtered_result
 
     def searchWithInvertedIndex(self,
                                 query: Query,
@@ -146,12 +152,12 @@ class MemoryCollection(AbstractCollection):
         elif searchParameter.getRetrievalType() == RetrievalType.POSITIONAL:
             return self.positional_index.positionalSearch(query, self.dictionary)
         elif searchParameter.getRetrievalType() == RetrievalType.RANKED:
-            return self.positional_index.rankedSearch(query,
+            result = self.positional_index.rankedSearch(query,
                                                         self.dictionary,
                                                         self.documents,
-                                                        searchParameter.getTermWeighting(),
-                                                        searchParameter.getDocumentWeighting(),
-                                                        searchParameter.getDocumentsRetrieved())
+                                                        searchParameter)
+            result.getBest(searchParameter.getDocumentsRetrieved())
+            return result
         else:
             return QueryResult()
 
@@ -189,8 +195,8 @@ class MemoryCollection(AbstractCollection):
             else:
                 current_result = self.searchWithInvertedIndex(query, searchParameter)
             categories = self.category_tree.getCategories(query,
-                                                            self.dictionary,
-                                                            searchParameter.getCategoryDeterminationType())
+                                                          self.dictionary,
+                                                          searchParameter.getCategoryDeterminationType())
             return self.filterAccordingToCategories(current_result, categories)
         else:
             if self.__index_type == IndexType.INCIDENCE_MATRIX:

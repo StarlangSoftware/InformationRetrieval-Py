@@ -1,14 +1,13 @@
 from collections import OrderedDict
 
 from InformationRetrieval.Document.Document import Document
-from InformationRetrieval.Document.DocumentWeighting import DocumentWeighting
 from InformationRetrieval.Index.PositionalPosting import PositionalPosting
 from InformationRetrieval.Index.PositionalPostingList import PositionalPostingList
 from InformationRetrieval.Index.TermDictionary import TermDictionary
 from InformationRetrieval.Index.TermOccurrence import TermOccurrence
-from InformationRetrieval.Index.TermWeighting import TermWeighting
 from InformationRetrieval.Query.Query import Query
 from InformationRetrieval.Query.QueryResult import QueryResult
+from InformationRetrieval.Query.SearchParameter import SearchParameter
 from InformationRetrieval.Query.VectorSpaceModel import VectorSpaceModel
 
 
@@ -150,9 +149,7 @@ class PositionalIndex:
                      query: Query,
                      dictionary: TermDictionary,
                      documents: [Document],
-                     termWeighting: TermWeighting,
-                     documentWeighting: DocumentWeighting,
-                     documentsReturned: int) -> QueryResult:
+                     parameter: SearchParameter) -> QueryResult:
         N = len(documents)
         result = QueryResult()
         scores = {}
@@ -166,12 +163,15 @@ class PositionalIndex:
                     tf = positional_posting.size()
                     df = self.__positional_index[term].size()
                     if tf > 0 and df > 0:
-                        score = VectorSpaceModel.weighting(tf, df, N, termWeighting, documentWeighting)
+                        score = VectorSpaceModel.weighting(tf,
+                                                           df,
+                                                           N,
+                                                           parameter.getTermWeighting(),
+                                                           parameter.getDocumentWeighting())
                         if doc_id in scores:
                             scores[doc_id] = scores[doc_id] + score
                         else:
                             scores[doc_id] = score
         for doc_id in scores:
             result.add(doc_id, scores[doc_id])
-        result.getBest(documentsReturned)
         return result
