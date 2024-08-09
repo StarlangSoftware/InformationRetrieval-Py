@@ -15,6 +15,14 @@ class VectorSpaceModel:
                  documentSize: int,
                  termWeighting: TermWeighting,
                  documentWeighting: DocumentWeighting):
+        """
+        Constructor for the VectorSpaceModel class. Calculates the normalized tf-idf vector of a single document.
+        :param termFrequencies: Term frequencies in the document.
+        :param documentFrequencies: Document frequencies of terms.
+        :param documentSize: Number of documents in the collection
+        :param termWeighting: Term weighting scheme applied in term frequency calculation.
+        :param documentWeighting: Document weighting scheme applied in document frequency calculation.
+        """
         _sum = 0
         self._model = []
         for i in range(len(termFrequencies)):
@@ -28,9 +36,19 @@ class VectorSpaceModel:
             self._model[i] = self._model[i] / sqrt(_sum)
 
     def get(self, index: int) -> float:
+        """
+        Returns the tf-idf value for a column at position index
+        :param index: Position of the column
+        :return: tf-idf value for a column at position index
+        """
         return self._model[index]
 
     def cosineSimilarity(self, secondModel: VectorSpaceModel):
+        """
+        Calculates the cosine similarity between this document vector and the given second document vector.
+        :param secondModel: Document vector of the second document.
+        :return: Cosine similarity between this document vector and the given second document vector.
+        """
         _sum = 0.0
         for i in range(len(self._model)):
             _sum = _sum + self._model[i] * secondModel._model[i]
@@ -42,6 +60,15 @@ class VectorSpaceModel:
                   documentSize: int,
                   termWeighting: TermWeighting,
                   documentWeighting: DocumentWeighting):
+        """
+        Calculates tf-idf value of a single word (column) of the document vector.
+        :param termFrequency: Term frequency of this word in the document.
+        :param documentFrequency: Document frequency of this word.
+        :param documentSize: Number of documents in the collection.
+        :param termWeighting: Term weighting scheme applied in term frequency calculation.
+        :param documentWeighting: Document weighting scheme applied in document frequency calculation.
+        :return: tf-idf value of a single word (column) of the document vector.
+        """
         multiplier1 = 1
         multiplier2 = 1
         if termWeighting == TermWeighting.NATURAL:

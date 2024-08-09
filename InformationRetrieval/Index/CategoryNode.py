@@ -15,6 +15,13 @@ class CategoryNode:
     __category_words: [str]
 
     def __init__(self, name: str, parent: CategoryNode):
+        """
+        Constructor for the category node. Each category is represented as a tree node in the category tree. Category
+        words are constructed by splitting the name of the category w.r.t. space. Sets the parent node and adds this
+        node as a child to parent node.
+        :param name: Name of the category.
+        :param parent: Parent node of this node.
+        """
         self.__category_words = name.split()
         self.__parent = parent
         self.__counts = CounterHashMap()
@@ -23,27 +30,50 @@ class CategoryNode:
             parent.addChild(self)
 
     def addChild(self, child: CategoryNode):
+        """
+        Adds the given child node to this node.
+        :param child: New child node
+        """
         self.__children.append(child)
 
     def getName(self) -> str:
+        """
+        Constructs the category name from the category words. Basically combines all category words separated with space.
+        :param child:Category name.
+        :return:
+        """
         result = self.__category_words[0]
         for i in range(1, len(self.__category_words)):
             result += " " + self.__category_words[i]
         return result
 
     def getChild(self, childName: str) -> CategoryNode:
+        """
+        Searches the children of this node for a specific category name.
+        :param childName: Category name of the child.
+        """
         for child in self.__children:
             if child.getName() == childName:
                 return child
         return None
 
     def addCounts(self, termId: int, count: int):
+        """
+        Adds frequency count of the term to the counts hash map of all ascendants of this node.
+        :param termId: ID of the occurring term.
+        :param count: Frequency of the term.
+        """
         current = self
         while current.__parent is not None:
             current.__counts.putNTimes(termId, count)
             current = current.__parent
 
     def isDescendant(self, ancestor: CategoryNode) -> bool:
+        """
+        Checks if the given node is an ancestor of the current node.
+        :param ancestor: Node for which ancestor check will be done
+        :return: True, if the given node is an ancestor of the current node.
+        """
         if self == ancestor:
             return True
         if self.__parent is None:
@@ -51,9 +81,18 @@ class CategoryNode:
         return self.__parent.isDescendant(ancestor)
 
     def getChildren(self) -> [CategoryNode]:
+        """
+        Accessor of the children attribute
+        :return: Children of the node
+        """
         return self.__children
 
     def __str__(self) -> str:
+        """
+        Recursive method that returns the hierarchy string of the node. Hierarchy string is obtained by concatenating the
+        names of all ancestor nodes separated with '%'.
+        :return: Hierarchy string of this node
+        """
         if self.__parent is not None:
             if self.__parent.__parent is not None:
                 return self.__parent.__str__() + "%" + self.getName()
@@ -62,6 +101,10 @@ class CategoryNode:
         return ""
 
     def setRepresentativeCount(self, representativeCount: int):
+        """
+        Recursive method that sets the representative count. The representative count filters the most N frequent words.
+        :param representativeCount: Number of representatives.
+        """
         if representativeCount <= len(self.__counts):
             top_list = self.__counts.topN(representativeCount)
             self.__counts = CounterHashMap()
@@ -71,6 +114,13 @@ class CategoryNode:
     def getCategoriesWithKeyword(self,
                                  query: Query,
                                  result: list):
+        """
+        Recursive method that checks the query words in the category words of all descendants of this node and
+        accumulates the nodes that satisfies the condition. If any word  in the query appears in any category word, the
+        node will be accumulated.
+        :param query: Query string
+        :param result: Accumulator array
+        """
         category_score = 0
         for i in range(query.size()):
             if query.getTerm(i).getName() in self.__category_words:
@@ -84,6 +134,14 @@ class CategoryNode:
                                 query: Query,
                                 dictionary: TermDictionary,
                                 result: list):
+        """
+        Recursive method that checks the query words in the category words of all descendants of this node and
+        accumulates the nodes that satisfies the condition. If any word  in the query appears in any category word, the
+        node will be accumulated.
+        :param query: Query string
+        :param dictionary: Term dictionary
+        :param result: Accumulator array
+        """
         category_score = 0
         for i in range(query.size()):
             term = dictionary.getWord(query.getTerm(i).getName())

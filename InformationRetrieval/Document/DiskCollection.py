@@ -12,12 +12,29 @@ class DiskCollection(AbstractCollection):
         super().__init__(directory, parameter)
 
     def notCombinedAllIndexes(self, currentIdList: [int]) -> bool:
+        """
+        In single pass in memory indexing, the index files are merged to get the final index file. This method
+        checks if all parallel index files are combined or not.
+        :param currentIdList: Current pointers for the terms in parallel index files. currentIdList[0] is the current term
+                             in the first index file to be combined, currentIdList[2] is the current term in the second
+                             index file to be combined etc.
+        :return: True, if all merge operation is completed, false otherwise.
+        """
         for _id in currentIdList:
             if _id != -1:
                 return True
         return False
 
     def selectIndexesWithMinimumTermIds(self, currentIdList: [int]) -> [int]:
+        """
+        In single pass in memory indexing, the index files are merged to get the final index file. This method
+        identifies the indexes whose terms to be merged have the smallest term id. They will be selected and
+        combined in the next phase.
+        :param currentIdList: Current pointers for the terms in parallel index files. currentIdList[0] is the current term
+                             in the first index file to be combined, currentIdList[2] is the current term in the second
+                             index file to be combined etc.
+        :return: An array list of indexes for the index files, whose terms to be merged have the smallest term id.
+        """
         result = []
         _min = float('inf')
         for _id in currentIdList:
@@ -32,6 +49,14 @@ class DiskCollection(AbstractCollection):
                                              name: str,
                                              tmpName: str,
                                              blockCount: int):
+        """
+        In single pass in memory indexing, the index files are merged to get the final index file. This method
+        implements the merging algorithm. Reads the index files in parallel and at each iteration merges the posting
+        lists of the smallest term and put it to the merged index file. Updates the pointers of the indexes accordingly.
+        :param name: Name of the collection.
+        :param tmpName: Temporary name of the index files.
+        :param blockCount: Number of index files to be merged.
+        """
         current_id_list = []
         current_posting_lists = []
         files = []
@@ -65,6 +90,13 @@ class DiskCollection(AbstractCollection):
     def combineMultiplePositionalIndexesInDisk(self,
                                                name: str,
                                                blockCount: int):
+        """
+        In single pass in memory indexing, the index files are merged to get the final index file. This method
+        implements the merging algorithm. Reads the index files in parallel and at each iteration merges the positional
+        posting lists of the smallest term and put it to the merged index file. Updates the pointers of the indexes accordingly.
+        :param name: Name of the collection.
+        :param blockCount: Number of index files to be merged.
+        """
         current_id_list = []
         current_posting_lists = []
         files = []

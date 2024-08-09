@@ -13,6 +13,12 @@ class TermOccurrence:
                  term: Word,
                  docID: int,
                  position: int):
+        """
+        Constructor for the TermOccurrence class. Sets the attributes.
+        :param term: Term for this occurrence.
+        :param docID: Document id of the term occurrence.
+        :param position: Position of the term in the document for this occurrence.
+        """
         self.__term = term
         self.__doc_id = docID
         self.__position = position
@@ -51,6 +57,19 @@ class TermOccurrence:
     @staticmethod
     def termOccurrenceComparator(termA: TermOccurrence,
                                  termB: TermOccurrence):
+        """
+        Compares two term occurrences.
+        :param termA: the first term occurrence to be compared.
+        :param termB: the second term occurrence to be compared.
+        :return: If the term of the first term occurrence is different from the term of the second term occurrence then
+        the method returns the comparison result between those two terms lexicographically. If the term of the first term
+        occurrence is same as the term of the second term occurrence then the term occurrences are compared with respect
+        to their document ids. If the first has smaller document id, the method returns -1; if the second has smaller
+        document id, the method returns +1.  As the third comparison criteria, if also the document ids are the same,
+        the method compares term occurrences with respect to the position. If the first has smaller position, the method
+        returns -1; if the second has smaller position id, the method returns +1, and if all three features are the same,
+        the method returns 0.
+        """
         if termA.getTerm().getName() != termB.getTerm().getName():
             return TermOccurrence.ignoreCaseComparator(termA.getTerm(), termB.getTerm())
         elif termA.getDocId() == termB.getDocId():
@@ -66,13 +85,30 @@ class TermOccurrence:
             return 1
 
     def getTerm(self) -> Word:
+        """
+        Accessor for the term.
+        :return: Term
+        """
         return self.__term
 
     def getDocId(self) -> int:
+        """
+        Accessor for the document id.
+        :return: Document id.
+        """
         return self.__doc_id
 
     def getPosition(self) -> int:
+        """
+        Accessor for the position of the term.
+        :return: Position of the term.
+        """
         return self.__position
 
     def isDifferent(self, currentTerm: TermOccurrence) -> bool:
+        """
+        Checks if the current occurrence is different from the other occurrence.
+        :param currentTerm: Term occurrence to be compared.
+        :return: True, if two terms are different; false if they are the same.
+        """
         return self.__term.getName() != currentTerm.getTerm().getName()

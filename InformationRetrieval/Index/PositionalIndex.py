@@ -15,38 +15,60 @@ class PositionalIndex:
 
     __positional_index: OrderedDict
 
+    def constructor1(self, fileName: str):
+        """
+        Reads the positional inverted index from an input file.
+        :param fileName: Input file name for the positional inverted index.
+        """
+        self.readPositionalPostingList(fileName)
+
+    def constructor2(self, dictionary: TermDictionary, terms: list):
+        """
+        Constructs a positional inverted index from a list of sorted tokens. The terms array should be sorted before
+        calling this method. Multiple occurrences of the same term from the same document are enlisted separately in the
+        index.
+        :param dictionary: Term dictionary
+        :param terms: Sorted list of tokens in the memory collection.
+        """
+        if len(terms) > 0:
+            term: TermOccurrence = terms[0]
+            i = 1
+            previous_term = term
+            term_id = dictionary.getWordIndex(term.getTerm().getName())
+            self.addPosition(term_id, term.getDocId(), term.getPosition())
+            prev_doc_id = term.getDocId()
+            while i < len(terms):
+                term = terms[i]
+                term_id = dictionary.getWordIndex(term.getTerm().getName())
+                if term_id != -1:
+                    if term.isDifferent(previous_term):
+                        self.addPosition(term_id, term.getDocId(), term.getPosition())
+                        prev_doc_id = term.getDocId()
+                    elif prev_doc_id != term.getDocId():
+                        self.addPosition(term_id, term.getDocId(), term.getPosition())
+                        prev_doc_id = term.getDocId()
+                    else:
+                        self.addPosition(term_id, term.getDocId(), term.getPosition())
+                i = i + 1
+                previous_term = term
+
     def __init__(self,
                  dictionaryOrfileName: object = None,
                  terms: [TermOccurrence] = None):
         self.__positional_index = OrderedDict()
         if dictionaryOrfileName is not None:
             if isinstance(dictionaryOrfileName, TermDictionary):
-                dictionary: TermDictionary = dictionaryOrfileName
-                if len(terms) > 0:
-                    term: TermOccurrence = terms[0]
-                    i = 1
-                    previous_term = term
-                    term_id = dictionary.getWordIndex(term.getTerm().getName())
-                    self.addPosition(term_id, term.getDocId(), term.getPosition())
-                    prev_doc_id = term.getDocId()
-                    while i < len(terms):
-                        term = terms[i]
-                        term_id = dictionary.getWordIndex(term.getTerm().getName())
-                        if term_id != -1:
-                            if term.isDifferent(previous_term):
-                                self.addPosition(term_id, term.getDocId(), term.getPosition())
-                                prev_doc_id = term.getDocId()
-                            elif prev_doc_id != term.getDocId():
-                                self.addPosition(term_id, term.getDocId(), term.getPosition())
-                                prev_doc_id = term.getDocId()
-                            else:
-                                self.addPosition(term_id, term.getDocId(), term.getPosition())
-                        i = i + 1
-                        previous_term = term
+                self.constructor2(dictionaryOrfileName, terms)
             elif isinstance(dictionaryOrfileName, str):
-                self.readPositionalPostingList(dictionaryOrfileName)
+                self.constructor1(dictionaryOrfileName)
 
     def readPositionalPostingList(self, fileName: str):
+        """
+        Reads the positional postings list of the positional index from an input file. The postings are stored in n
+        lines. The first line contains the term id and the number of documents that term occurs. Other n - 1 lines
+        contain the postings list for that term for a separate document.
+        :param fileName: Positional index file.
+        """
         input_file = open(fileName + "-positionalPostings.txt", mode="r", encoding="utf-8")
         line = input_file.readline().strip()
         while line != "":
@@ -57,6 +79,10 @@ class PositionalIndex:
         input_file.close()
 
     def saveSorted(self, fileName: str):
+        """
+        Save positional index sorted w.r.t. index to the given output file.
+        :param fileName:  Output file name.
+        """
         items = []
         for key in self.__positional_index.keys():
             items.append([key, self.__positional_index[key]])
@@ -67,6 +93,13 @@ class PositionalIndex:
         output_file.close()
 
     def save(self, fileName: str):
+        """
+        Saves the positional index into the index file. The postings are stored in n lines. The first line contains the
+        term id and the number of documents that term occurs. Other n - 1 lines contain the postings list for that term
+        for a separate document.
+        :param fileName: Index file name. Real index file name is created by attaching -positionalPostings.txt to this
+                         file name
+        """
         output_file = open(fileName + "-positionalPostings.txt", mode="w", encoding="utf-8")
         for key in self.__positional_index.keys():
             self.__positional_index[key].writeToFile(output_file, key)
@@ -76,6 +109,13 @@ class PositionalIndex:
                     termId: int,
                     docId: int,
                     position: int):
+        """
+        Adds a possible new term with a position and document id to the positional index. First the term is searched in
+        the hash map, then the position and the document id is put into the correct postings list.
+        :param termId: Id of the term
+        :param docId: Document id in which the term exists
+        :param position: Position of the term in the document with id docId
+        """
         if termId in self.__positional_index:
             positional_posting_list = self.__positional_index[termId]
         else:
@@ -86,6 +126,12 @@ class PositionalIndex:
     def positionalSearch(self,
                          query: Query,
                          dictionary: TermDictionary) -> QueryResult:
+        """
+        Searches a given query in the document collection using positional index boolean search.
+        :param query: Query string
+        :param dictionary: Term dictionary
+        :return: The result of the query obtained by doing positional index boolean search in the collection.
+        """
         posting_result: PositionalPostingList = None
         for i in range(query.size()):
             term = dictionary.getWordIndex(query.getTerm(i).getName())
@@ -104,6 +150,11 @@ class PositionalIndex:
             return QueryResult()
 
     def getTermFrequencies(self, docId: int) -> [int]:
+        """
+        Returns the term frequencies  in a given document.
+        :param docId: Id of the document
+        :return: Term frequencies of the given document.
+        """
         tf = []
         i = 0
         for key in self.__positional_index.keys():
@@ -117,6 +168,10 @@ class PositionalIndex:
         return tf
 
     def getDocumentFrequencies(self) -> [int]:
+        """
+        Returns the document frequencies of the terms in the collection.
+        :return: The document frequencies of the terms in the collection.
+        """
         df = []
         i = 0
         for key in self.__positional_index.keys():
@@ -125,6 +180,10 @@ class PositionalIndex:
         return df
 
     def setDocumentSizes(self, documents: [Document]):
+        """
+        Calculates and sets the number of terms in each document in the document collection.
+        :param documents: Document collection.
+        """
         sizes = []
         for i in range(len(documents)):
             sizes.append(0)
@@ -138,6 +197,10 @@ class PositionalIndex:
             doc.setSize(sizes[doc.getDocId()])
 
     def setCategoryCounts(self, documents: [Document]):
+        """
+        Calculates and updates the frequency counts of the terms in each category node.
+        :param documents: Document collection.
+        """
         for key in self.__positional_index.keys():
             positional_posting_list = self.__positional_index[key]
             for i in range(positional_posting_list.size()):
@@ -150,6 +213,14 @@ class PositionalIndex:
                      dictionary: TermDictionary,
                      documents: [Document],
                      parameter: SearchParameter) -> QueryResult:
+        """
+        Searches a given query in the document collection using inverted index ranked search.
+        :param query: Query string
+        :param dictionary: Term dictionary
+        :param documents: Document collection.
+        :param parameter: Search parameter.
+        :return: The result of the query obtained by doing inverted index ranked search in the collection.
+        """
         N = len(documents)
         result = QueryResult()
         scores = {}

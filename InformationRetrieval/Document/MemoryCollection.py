@@ -27,6 +27,12 @@ class MemoryCollection(AbstractCollection):
     def __init__(self,
                  directory: str,
                  parameter: Parameter):
+        """
+        Constructor for the MemoryCollection class. In small collections, dictionary and indexes are kept in memory.
+        Memory collection also supports categorical documents.
+        :param directory: Directory where the document collection resides.
+        :param parameter: Search parameter
+        """
         super().__init__(directory, parameter)
         self.__index_type = parameter.getIndexType()
         if parameter.loadIndexesFromFile():
@@ -38,6 +44,11 @@ class MemoryCollection(AbstractCollection):
             self.category_tree.setRepresentativeCount(parameter.getRepresentativeCount())
 
     def loadIndexesFromFile(self, directory: str):
+        """
+        The method loads the term dictionary, inverted index, positional index, phrase and N-Gram indexes from dictionary
+        and index files to the memory.
+        :param directory: Directory where the document collection resides.
+        """
         self.dictionary = TermDictionary(self.comparator, directory)
         self.inverted_index = InvertedIndex(directory)
         if self.parameter.constructPositionalIndex():
@@ -55,6 +66,11 @@ class MemoryCollection(AbstractCollection):
             self.tri_gram_index = NGramIndex(directory + "-triGram")
 
     def save(self):
+        """
+        The method saves the term dictionary, inverted index, positional index, phrase and N-Gram indexes to the dictionary
+        and index files. If the collection is a categorical collection, categories are also saved to the category
+        files.
+        """
         if self.__index_type == IndexType.INVERTED_INDEX:
             self.dictionary.save(self.name)
             self.inverted_index.save(self.name)
@@ -74,12 +90,18 @@ class MemoryCollection(AbstractCollection):
             self.saveCategories()
 
     def saveCategories(self):
+        """
+        The method saves the category tree for the categorical collections.
+        """
         output_file = open(self.name + "-categories.txt", mode="w", encoding="utf-8")
         for document in self.documents:
             output_file.write(document.getDocId().__str__() + "\t" + document.getCategory().__str__() + "\n")
         output_file.close()
 
     def constructIndexesInMemory(self):
+        """
+        The method constructs the term dictionary, inverted index, positional index, phrase and N-Gram indexes in memory.
+        """
         terms = self.constructTerms(TermType.TOKEN)
         self.dictionary = TermDictionary(self.comparator, terms)
         if self.__index_type == IndexType.INCIDENCE_MATRIX:
@@ -102,6 +124,14 @@ class MemoryCollection(AbstractCollection):
                     document.loadCategory(self.category_tree)
 
     def constructTerms(self, termType: TermType) -> [TermOccurrence]:
+        """
+        Given the document collection, creates an array list of terms. If term type is TOKEN, the terms are single
+        word, if the term type is PHRASE, the terms are bi-words. Each document is loaded into memory and
+        word list is created. Since the dictionary can be kept in memory, all operations can be done in memory.
+        :param termType: If term type is TOKEN, the terms are single word, if the term type is PHRASE, the terms are
+                         bi-words.
+        :return: Array list of terms occurring in the document collection.
+        """
         terms: [TermOccurrence] = []
         for doc in self.documents:
             document_text = doc.loadDocument()
@@ -111,6 +141,18 @@ class MemoryCollection(AbstractCollection):
         return terms
 
     def attributeSearch(self, query: Query, parameter: SearchParameter) -> QueryResult:
+        """
+        The method searches given query string in the document collection using the attribute list according to the
+        given search parameter. First, the original query is filtered by removing phrase attributes, shortcuts and single
+        word attributes. At this stage, we get the word and phrase attributes in the original query and the remaining
+        words in the original query as two separate queries. Second, both single word and phrase attributes in the
+        original query are searched in the document collection. Third, these intermediate query results are then
+        intersected. Fourth, we put this results into either (i) an inverted index (ii) or a ranked based positional
+        filtering with the filtered query to get the end result.
+        :param query: Query string
+        :param parameter: Search parameter for the query
+        :return: The intermediate result of the query obtained by doing attribute list based search in the collection.
+        """
         term_attributes = Query()
         phrase_attributes = Query()
         term_result = QueryResult()
@@ -147,6 +189,14 @@ class MemoryCollection(AbstractCollection):
     def searchWithInvertedIndex(self,
                                 query: Query,
                                 searchParameter: SearchParameter) -> QueryResult:
+        """
+        The method searches given query string in the document collection using the inverted index according to the
+        given search parameter. If the search is (i) boolean, inverted index is used (ii) positional, positional
+        inverted index is used, (iii) ranked, positional inverted index is used with a ranking algorithm at the end.
+        :param query: Query string
+        :param searchParameter: Search parameter for the query
+        :return: The intermediate result of the query obtained by doing inverted index based search in the collection.
+        """
         if searchParameter.getRetrievalType() == RetrievalType.BOOLEAN:
             return self.inverted_index.search(query, self.dictionary)
         elif searchParameter.getRetrievalType() == RetrievalType.POSITIONAL:
@@ -164,6 +214,14 @@ class MemoryCollection(AbstractCollection):
     def filterAccordingToCategories(self,
                                     currentResult: QueryResult,
                                     categories: [CategoryNode]):
+        """
+        Filters current search result according to the predicted categories from the query string. For every search
+        result, if it is in one of the predicated categories, is added to the filtered end result. Otherwise, it is
+        omitted in the end result.
+        :param currentResult: Current search result before filtering.
+        :param categories: Predicted categories that match the query string.
+        :return: Filtered query result
+        """
         filtered_result = QueryResult()
         items = currentResult.getItems()
         for query_result_item in items:
@@ -175,6 +233,12 @@ class MemoryCollection(AbstractCollection):
         return filtered_result
 
     def autoCompleteWord(self, prefix: str) -> [str]:
+        """
+        Constructs an auto complete list of product names for a given prefix. THe results are sorted according to
+        frequencies.
+        :param prefix: Prefix of the name of the product.
+        :return: An auto complete list of product names for a given prefix.
+        """
         result = []
         i = self.dictionary.getWordStartingWith(prefix)
         while i < self.dictionary.size():
@@ -189,6 +253,16 @@ class MemoryCollection(AbstractCollection):
     def searchCollection(self,
                          query: Query,
                          searchParameter: SearchParameter):
+        """
+        Searches a document collection for a given query according to the given search parameters. The documents are
+        searched using (i) incidence matrix if the index type is incidence matrix, (ii) attribute list if search
+        attributes option is selected, (iii) inverted index if the index type is inverted index and no attribute
+        search is done. After the initial search, if there is a categorical focus, it filters the results
+        according to the predicted categories from the query string.
+        :param query: Query string
+        :param searchParameter: Search parameter for the query
+        :return: The result of the query obtained by doing search in the collection.
+        """
         if searchParameter.getFocusType() == FocusType.CATEGORY:
             if searchParameter.getSearchAttributes():
                 current_result = self.attributeSearch(query, searchParameter)

@@ -14,6 +14,12 @@ class IncidenceMatrix:
                  terms: [TermOccurrence],
                  dictionary: TermDictionary,
                  documentSize: int):
+        """
+        Constructs an incidence matrix from a list of sorted tokens in the given terms array.
+        :param terms: List of tokens in the memory collection.
+        :param dictionary: Term dictionary
+        :param documentSize: Number of documents in the collection
+        """
         self.__dictionary_size = dictionary.size()
         self.__document_size = documentSize
         self.__incidence_matrix = [[False for _ in range(self.__document_size)] for _ in range(self.__dictionary_size)]
@@ -29,11 +35,22 @@ class IncidenceMatrix:
     def set(self,
             row: int,
             col: int):
+        """
+        Sets the given cell in the incidence matrix to true.
+        :param row: Row no of the cell
+        :param col: Column no of the cell
+        """
         self.__incidence_matrix[row][col] = True
 
     def search(self,
                query: Query,
                dictionary: TermDictionary) -> QueryResult:
+        """
+        Searches a given query in the document collection using incidence matrix boolean search.
+        :param query: Query string
+        :param dictionary: Term dictionary
+        :return: The result of the query obtained by doing incidence matrix boolean search in the collection.
+        """
         result = QueryResult()
         result_row = [True for _ in range(self.__document_size)]
         for i in range(query.size()):
